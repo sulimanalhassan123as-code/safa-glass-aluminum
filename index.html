@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Safa Glass &amp; Aluminum — Quality Fabrication, Ghana</title>
+  <!-- v4: AI chat memory on device, admin-managed window types, glass showreel video, movable WhatsApp -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root, body[data-theme="white"] { --bg-color:#eef2f6; --card-bg:#eef2f6; --shadow-light:#ffffff; --shadow-dark:#cad1dc; --primary-accent:#a31d1d; --text-dark:#2b3445; --text-muted:#7d899b; }
@@ -86,6 +87,28 @@
     .send-ico { width:52px; height:52px; border-radius:50%; background:var(--primary-accent); color:#fff; border:none; font-size:1.2rem; cursor:pointer; }
     .whatsapp-btn { position:fixed; bottom:90px; right:20px; width:52px; height:52px; background:#25d366; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(37,211,102,.3); cursor:pointer; z-index:60; }
     .whatsapp-btn svg { width:25px; height:25px; fill:#fff; }
+    /* v4 — glass showreel video section */
+    .showreel { position:relative; padding:18px; border-radius:26px; overflow:hidden; }
+    .showreel-ring { position:relative; width:100%; border-radius:22px; overflow:hidden; box-shadow:inset 3px 3px 8px var(--shadow-dark),inset -3px -3px 8px var(--shadow-light); background:var(--card-bg); }
+    .showreel-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .showreel-head .section-title { margin-bottom:0; }
+    .live-dot { width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block; animation:pulse 1.6s infinite; }
+    @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(16,185,129,.5);} 70%{box-shadow:0 0 0 8px rgba(16,185,129,0);} 100%{box-shadow:0 0 0 0 rgba(16,185,129,0);} }
+    .video-frame { position:relative; width:100%; height:210px; border-radius:18px; overflow:hidden; background:#000; }
+    .video-frame img, .video-frame video, .video-frame iframe { width:100%; height:100%; object-fit:cover; border:none; display:block; }
+    .video-cover { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; cursor:pointer; background:rgba(0,0,0,.25); }
+    .play-btn { width:58px; height:58px; border-radius:50%; background:rgba(255,255,255,.85); display:flex; align-items:center; justify-content:center; font-size:1.4rem; box-shadow:0 10px 26px rgba(0,0,0,.35); cursor:pointer; transition:transform .2s; }
+    .play-btn:active { transform:scale(.9); }
+    .play-hint { font-size:.68rem; font-weight:800; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.6); }
+    .glass-shine { position:absolute; top:0; left:-80%; width:60%; height:100%; pointer-events:none; background:linear-gradient(105deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.16) 48%, rgba(255,255,255,.38) 50%, rgba(255,255,255,.16) 52%, rgba(255,255,255,0) 70%); animation:shine 5.5s ease-in-out infinite; }
+    @keyframes shine { 0%{left:-80%;} 45%{left:130%;} 100%{left:130%;} }
+    .glass-bub { position:absolute; border-radius:50%; border:1px solid rgba(255,255,255,.35); background:linear-gradient(135deg, rgba(255,255,255,.28), rgba(255,255,255,.05)); pointer-events:none; animation:bubUp linear infinite; }
+    @keyframes bubUp { 0%{ transform:translateY(0) scale(.9); opacity:0; } 15%{opacity:.9;} 100%{ transform:translateY(-170px) scale(1.15); opacity:0; } }
+    .showreel-ring::after { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; pointer-events:none; background:conic-gradient(from 0deg, transparent 0%, rgba(163,29,29,.14) 12%, transparent 26%, rgba(163,29,29,.10) 50%, transparent 68%, rgba(163,29,29,.16) 84%, transparent 96%); animation:glassSpin 9s linear infinite; opacity:.8; }
+    @keyframes glassSpin { to { transform:rotate(360deg); } }
+    /* v4 — draggable whatsapp */
+    .whatsapp-btn { touch-action:none; user-select:none; -webkit-user-select:none; }
+    .whatsapp-btn.dragging { transition:none; box-shadow:0 14px 30px rgba(37,211,102,.45); transform:scale(1.08); }
     .ok-banner { display:none; text-align:center; padding:24px 16px; border-radius:20px; box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light); }
     .ok-banner .big { font-size:2.2rem; }
     .ok-banner h4 { font-size:1.05rem; font-weight:800; margin:8px 0 4px; }
@@ -127,6 +150,17 @@
       <button class="action-btn" onclick="nav('quote')">Get a Quote</button>
       <button class="action-btn" onclick="nav('chat')">Chat with AI</button>
     </section>
+    <!-- SHOWREEL VIDEO (managed from Admin — v4) -->
+    <section class="showreel neu-flat" id="showreel" style="display:none;">
+      <div class="showreel-head"><div class="section-title">Our Showreel</div><span style="font-size:.62rem;font-weight:800;color:#10b981;"><span class="live-dot"></span>&nbsp;Watch us work</span></div>
+      <div class="showreel-ring">
+        <div class="video-frame" id="videoFrame"></div>
+        <div class="glass-shine"></div>
+        <div class="glass-bub" style="width:26px;height:26px;left:8%;bottom:-30px;animation-duration:7s;"></div>
+        <div class="glass-bub" style="width:16px;height:16px;left:20%;bottom:-20px;animation-duration:9s;animation-delay:2s;"></div>
+        <div class="glass-bub" style="width:20px;height:20px;right:10%;bottom:-26px;animation-duration:8s;animation-delay:4s;"></div>
+      </div>
+    </section>
     <section>
       <div class="section-title">Our Products — Tap to explore</div>
       <div class="grid-3" id="catGrid"></div>
@@ -157,11 +191,7 @@
       <div><div class="f-label">Your Name *</div><input class="f-input" id="qName" placeholder="e.g. Kwame Mensah"></div>
       <div><div class="f-label">Phone</div><input class="f-input" id="qPhone" type="tel" placeholder="e.g. 024 000 0000"></div>
       <div><div class="f-label">What do you need? *</div>
-        <select class="f-select" id="qType">
-          <option>Sliding Windows</option><option>Sliding Doors</option><option>Fixed Glass</option>
-          <option>Arch Windows</option><option>Casement Windows</option><option>Projected Windows</option>
-          <option>Louvre Windows</option><option>Partitions / Shop Front</option><option>Glass Supply / Replacement</option>
-        </select></div>
+        <select class="f-select" id="qType"></select></div>
       <div><div class="f-label">Measurements — Width × Height (mm), one per line *</div>
         <textarea class="f-textarea" id="qSizes" placeholder="1720 × 1580&#10;1200 × 1200"></textarea></div>
       <div><div class="f-label">Note (optional)</div><input class="f-input" id="qNote" placeholder="e.g. dark glass, gray frames"></div>
@@ -229,7 +259,7 @@
     <button class="tab-btn" data-tab="contact" onclick="nav('contact')"><span class="ti">📞</span>Contact</button>
   </nav>
 
-  <div class="whatsapp-btn" onclick="openWhatsApp()">
+  <div class="whatsapp-btn">
     <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
   </div>
 </div>
@@ -263,7 +293,7 @@ function nav(view){
 }
 
 /* CATEGORIES */
-const CATS = [
+const DEFAULT_CATS = [
   { id:'windows', name:'Sliding Windows', emoji:'🪟', img:'assets/sliding-window.png', bg:'bg-red',
     desc:'Our most popular product. Smooth-gliding panels on the KS50 profile system — 2-panel, 3-panel or 4-panel, built to your exact opening.',
     feats:['Gray, white or bronze frames','Clear, dark or tinted glass','Optional mosquito netting','Strong locks and rollers'] },
@@ -283,18 +313,33 @@ const CATS = [
     desc:'Top-hung windows that project outward from the bottom — ventilate safely even during light rain.',
     feats:['Rain-safe ventilation','Hinged at the top','Easy one-hand operation','Great for bathrooms & kitchens'] }
 ];
+let CATS = DEFAULT_CATS.slice();
 let currentCat = CATS[0];
-document.getElementById('catGrid').innerHTML = CATS.map(c =>
+const BADGES = ['bg-red','bg-green','bg-blue','bg-gold','bg-purple','bg-orange'];
+function renderCats(){
+  document.getElementById('catGrid').innerHTML = CATS.map(c =>
   `<div class="grid-item" onclick="openCat('${c.id}')">
      <div class="grid-icon-box neu-button"><div class="icon-badge ${c.bg}" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">${c.emoji}</div></div>
-     <span class="grid-label">${c.name}</span>
+     <span class="grid-label">${esc(c.name)}</span>
    </div>`).join('');
+  populateTypeSelect();
+}
+/* v4 — quote form type list follows the admin-managed types */
+function populateTypeSelect(){
+  const sel = document.getElementById('qType');
+  if (!sel) return;
+  const names = CATS.map(c => c.name);
+  ['Louvre Windows','Partitions / Shop Front','Glass Supply / Replacement'].forEach(x => { if (!names.includes(x)) names.push(x); });
+  sel.innerHTML = names.map(n => `<option>${esc(n)}</option>`).join('');
+}
+renderCats();
 
 function openCat(id){
   const c = CATS.find(x => x.id === id); if (!c) return;
   currentCat = c;
+  const cimg = c.img || 'assets/hero-building.png';
   document.getElementById('catDetail').innerHTML =
-    `<img class="hero" src="${c.img}" alt="${c.name}">
+    `<img class="hero" src="${cimg}" alt="${esc(c.name)}">
      <h3>${c.name}</h3><p>${c.desc}</p>
      ${c.feats.map(f => `<div class="feat">✔️ <span>${f}</span></div>`).join('')}
      <p style="margin-top:12px;font-weight:700;color:var(--primary-accent);">Rough guide: GH₵1,000 per square metre of opening, installed. Exact price comes from the owner after measurements.</p>`;
@@ -335,6 +380,14 @@ let chatSid = localStorage.getItem('safa_chat_sid');
 if (!chatSid){ chatSid = 'web-' + Math.random().toString(36).slice(2,10) + Date.now().toString(36); localStorage.setItem('safa_chat_sid', chatSid); }
 let chatStatus = 'ai';
 let lastCount = -1;
+let chatBusy = false;
+
+/* v4 — chat memory saved on this phone: the past conversation is always there,
+   even before the network answers. The AI keeps its own memory server-side
+   under the same session id, so it remembers every past message. */
+let chatMem = [];
+try { chatMem = JSON.parse(localStorage.getItem('safa_chat_history') || '[]') || []; } catch(e){ chatMem = []; }
+function saveChatMem(){ try { localStorage.setItem('safa_chat_history', JSON.stringify(chatMem.slice(-200))); } catch(e){} }
 
 function addMsgEl(role, text){
   const d = document.createElement('div');
@@ -355,16 +408,23 @@ function setChatStatus(status){
 function renderSession(msgs, status){
   chatLog.innerHTML = '';
   msgs.forEach(m => addMsgEl(m.role, m.text));
+  chatMem = msgs.map(m => ({ role: m.role, text: m.text }));
+  saveChatMem();
   setChatStatus(status);
   chatLog.scrollTop = chatLog.scrollHeight;
 }
+/* v4 — instantly restore the past chat from the phone */
+if (chatMem.length){ chatMem.forEach(m => addMsgEl(m.role, m.text)); lastCount = chatMem.length; }
+
 async function pollChat(){
+  if (chatBusy) return;
   try {
     const r = await fetch(API + 'safaChatLive', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id: chatSid})});
     const d = await r.json();
     if (!d.ok) return;
-    if (d.messages.length === 0 && lastCount === -1){
-      addMsgEl('ai', "Hello! I'm Safa's AI aluminum expert — ask me anything, or tap 'Talk to Owner' to chat with the owner directly. Guide prices are instant; exact quotes come from him.");
+    if (d.messages.length === 0 && chatMem.length === 0){
+      const w = "Hello! I'm Safa's AI aluminum expert — ask me anything, or tap 'Talk to Owner' to chat with the owner directly. Guide prices are instant; exact quotes come from him.";
+      chatMem = [{ role: 'ai', text: w }]; saveChatMem(); addMsgEl('ai', w);
       lastCount = 0;
     } else if (d.messages.length !== lastCount){
       lastCount = d.messages.length;
@@ -372,34 +432,50 @@ async function pollChat(){
     } else setChatStatus(d.status);
   } catch(e){}
 }
+/* v4 — after sending, always re-sync with the server so history stays exact */
+async function syncChat(){
+  chatBusy = true;
+  try {
+    const r = await fetch(API + 'safaChatLive', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id: chatSid})});
+    const d = await r.json();
+    if (d.ok){ lastCount = d.messages.length; renderSession(d.messages, d.status); }
+  } catch(e){} finally { chatBusy = false; }
+}
 function chipAsk(q){ document.getElementById('chatInput').value = q; sendChat(); }
 async function sendChat(){
   const inp = document.getElementById('chatInput');
-  const msg = inp.value.trim(); if (!msg) return;
+  const msg = inp.value.trim(); if (!msg || chatBusy) return;
   inp.value = '';
   addMsgEl('customer', msg);
+  chatMem.push({ role: 'customer', text: msg }); saveChatMem();
   document.getElementById('chips').style.display = 'none';
   const t = document.createElement('div'); t.className = 'msg bot typing'; t.textContent = 'Thinking…';
   chatLog.appendChild(t); chatLog.scrollTop = chatLog.scrollHeight;
+  chatBusy = true;
   try {
     const r = await fetch(API + 'safaChat', {method:'POST',headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ message: msg, session_id: chatSid })});
     const d = await r.json();
     t.remove();
-    if (d.handover){ lastCount++; }
-    else if (d.reply){ addMsgEl('ai', d.reply); lastCount += 2; }
+    if (d.reply && !d.handover){ addMsgEl('ai', d.reply); chatMem.push({ role: 'ai', text: d.reply }); saveChatMem(); }
   } catch(e){ t.remove(); addMsgEl('ai', "Connection problem — please WhatsApp us on 0599 931 348."); }
+  chatBusy = false;
+  syncChat();
 }
 async function requestOwner(){
+  if (chatBusy) return;
   const t = document.createElement('div'); t.className = 'msg bot typing'; t.textContent = 'Notifying the owner…';
   chatLog.appendChild(t); chatLog.scrollTop = chatLog.scrollHeight;
+  chatBusy = true;
   try {
     const r = await fetch(API + 'safaChat', {method:'POST',headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ request_owner: true, session_id: chatSid, message: 'I would like to talk to the owner please' })});
     const d = await r.json();
     t.remove();
-    if (d.reply){ addMsgEl('ai', d.reply); lastCount++; }
+    if (d.reply){ addMsgEl('ai', d.reply); chatMem.push({ role: 'ai', text: d.reply }); saveChatMem(); }
   } catch(e){ t.remove(); addMsgEl('ai', "Please WhatsApp 0599 931 348 instead."); }
+  chatBusy = false;
+  syncChat();
 }
 pollChat();
 setInterval(() => { const pg = document.getElementById('page-chat'); if (pg && pg.classList.contains('active')) pollChat(); }, 4000);
@@ -409,13 +485,89 @@ async function loadWork(){
   try {
     const r = await fetch(API + 'safaGallery', { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
     const d = await r.json();
-    const items = (d.items || []).slice(0, 30);
+    const items = (d.items || []).filter(i => !String(i.category || '').startsWith('__sys')).slice(0, 30);
     document.getElementById('workGrid').innerHTML = items.map(i =>
       `<div class="g-item"><img src="${i.image_url}" alt="${esc(i.title || 'Our work')}" loading="lazy"><div class="g-cap">${esc(i.title || '')}</div></div>`).join('');
   } catch (e) {
     document.getElementById('workGrid').innerHTML = '<div style="grid-column:1/3;font-size:.8rem;color:var(--text-muted);font-weight:600;">Could not load — check your connection.</div>';
   }
 }
+
+/* ---------------- v4: ADMIN-MANAGED SITE CONFIG (window types & showreel video) ---------------- */
+/* Types and video live in the gallery backend as system items (category __sys_*), set from the Admin portal. */
+async function loadSiteConfig(){
+  try {
+    const r = await fetch(API + 'safaGallery', { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
+    const d = await r.json();
+    const items = d.items || [];
+    const types = items.filter(i => i.category === '__sys_wtype__').map(i => {
+      try { return { cfg: JSON.parse(i.title), icon: i.image_url }; } catch(e){ return null; }
+    }).filter(Boolean);
+    if (types.length){
+      CATS = types.map((t, idx) => ({
+        id: String(t.cfg.name || ('type' + idx)).toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        name: t.cfg.name, emoji: t.cfg.emoji || '🪟',
+        img: (t.icon && t.icon.length > 200) ? t.icon : '', bg: BADGES[idx % BADGES.length],
+        desc: t.cfg.desc || '', feats: Array.isArray(t.cfg.feats) ? t.cfg.feats : []
+      }));
+      currentCat = CATS[0];
+      renderCats();
+    }
+    const vids = items.filter(i => i.category === '__sys_video__');
+    if (vids.length){
+      let cfg = null; try { cfg = JSON.parse(vids[0].title); } catch(e){}
+      if (cfg && cfg.url) renderShowreel(cfg.url);
+    }
+  } catch(e){}
+}
+function ytId(url){ const m = String(url).match(/(?:youtu\.be\/|v=|\/shorts\/|\/embed\/)([\w-]{11})/); return m ? m[1] : null; }
+function renderShowreel(url){
+  const frame = document.getElementById('videoFrame');
+  const yid = ytId(url);
+  if (yid){
+    frame.innerHTML = '<img src="https://i.ytimg.com/vi/' + yid + '/hqdefault.jpg" alt="Showreel">' +
+      '<div class="video-cover" onclick="playYt(\'' + yid + '\')"><div class="play-btn">▶</div><div class="play-hint">Tap to watch</div></div>';
+  } else {
+    frame.innerHTML = '<video src="' + esc(url) + '" controls playsinline preload="metadata"></video>';
+  }
+  document.getElementById('showreel').style.display = 'block';
+}
+function playYt(id){
+  document.getElementById('videoFrame').innerHTML =
+    '<iframe src="https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+}
+loadSiteConfig();
+
+/* ---------------- v4: MOVABLE WHATSAPP BUTTON (position saved on this phone) ---------------- */
+(function(){
+  const btn = document.querySelector('.whatsapp-btn');
+  if (!btn) return;
+  let sx = 0, sy = 0, bx = 0, by = 0, moved = false, dragging = false;
+  function apply(l, t){ btn.style.left = l + 'px'; btn.style.top = t + 'px'; btn.style.right = 'auto'; btn.style.bottom = 'auto'; }
+  function clamp(l, t){ return [ Math.min(Math.max(l, 4), window.innerWidth - 56), Math.min(Math.max(t, 4), window.innerHeight - 56) ]; }
+  let saved = null; try { saved = JSON.parse(localStorage.getItem('safa_wa_pos') || 'null'); } catch(e){}
+  if (saved) apply(saved.l, saved.t);
+  btn.addEventListener('pointerdown', e => {
+    dragging = true; moved = false; sx = e.clientX; sy = e.clientY;
+    const r = btn.getBoundingClientRect(); bx = r.left; by = r.top;
+    try { btn.setPointerCapture(e.pointerId); } catch(t){}
+  });
+  btn.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.abs(dx) + Math.abs(dy) > 6){ moved = true; btn.classList.add('dragging'); apply(...clamp(bx + dx, by + dy)); }
+  });
+  btn.addEventListener('pointerup', () => {
+    btn.classList.remove('dragging');
+    if (!dragging) return;
+    dragging = false;
+    if (moved){ const r = btn.getBoundingClientRect(); localStorage.setItem('safa_wa_pos', JSON.stringify({ l: r.left, t: r.top })); }
+    else openWhatsApp();
+  });
+  btn.addEventListener('pointercancel', () => { dragging = false; btn.classList.remove('dragging'); });
+  window.addEventListener('resize', () => {
+    let p = null; try { p = JSON.parse(localStorage.getItem('safa_wa_pos') || 'null'); } catch(e){}
+    if (p) apply(...clamp(p.l, p.t));
+  });
+})();
 </script>
-</body>
-</html>
