@@ -4,7 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Safa Glass &amp; Aluminum — Quality Fabrication, Ghana</title>
-  <!-- v4: AI chat memory on device, admin-managed window types, glass showreel video, movable WhatsApp -->
+  <!-- v5: installable app (PWA) — manifest, service worker, offline shell, install button. v4: AI chat memory on device, admin-managed window types, glass showreel video, movable WhatsApp -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#a31d1d">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Safa Glass">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root, body[data-theme="white"] { --bg-color:#eef2f6; --card-bg:#eef2f6; --shadow-light:#ffffff; --shadow-dark:#cad1dc; --primary-accent:#a31d1d; --text-dark:#2b3445; --text-muted:#7d899b; }
@@ -149,6 +156,10 @@
     <section class="action-bar">
       <button class="action-btn" onclick="nav('quote')">Get a Quote</button>
       <button class="action-btn" onclick="nav('chat')">Chat with AI</button>
+    </section>
+    <!-- v5 — INSTALL APP -->
+    <section style="text-align:center;">
+      <button class="action-btn" id="installBtn" onclick="installApp()">📲 Install App on Your Phone</button>
     </section>
     <!-- SHOWREEL VIDEO (managed from Admin — v4) -->
     <section class="showreel neu-flat" id="showreel" style="display:none;">
@@ -537,6 +548,20 @@ function playYt(id){
     '<iframe src="https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
 }
 loadSiteConfig();
+
+/* ---------------- v5: INSTALLABLE APP (PWA) ---------------- */
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+let installPromptEvt = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installPromptEvt = e; });
+window.addEventListener('appinstalled', () => { const b = document.getElementById('installBtn'); if (b) b.style.display = 'none'; });
+function installApp(){
+  if (installPromptEvt){
+    installPromptEvt.prompt();
+    installPromptEvt.userChoice.then(() => { installPromptEvt = null; });
+  } else {
+    alert("To install the Safa Glass app on your phone:\n\niPhone: open this site in Safari, tap the Share button (box with arrow), then choose 'Add to Home Screen'.\n\nAndroid: tap the Chrome menu (⋮), then 'Install app' or 'Add to Home screen'.");
+  }
+}
 
 /* ---------------- v4: MOVABLE WHATSAPP BUTTON (position saved on this phone) ---------------- */
 (function(){
