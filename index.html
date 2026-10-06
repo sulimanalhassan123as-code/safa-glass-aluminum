@@ -529,7 +529,9 @@ async function loadSiteConfig(){
     const vids = items.filter(i => i.category === '__sys_video__');
     if (vids.length){
       let cfg = null; try { cfg = JSON.parse(vids[0].title); } catch(e){}
-      if (cfg && cfg.url) renderShowreel(cfg.url);
+      /* cfg.url = pasted YouTube/mp4 link. cfg.path = directly-uploaded file's short storage path (resolved to a full Supabase public URL here). */
+      const resolvedUrl = cfg && (cfg.url || (cfg.path ? ('https://hokqlvkowcrujppeliip.supabase.co/storage/v1/object/public/safa-media/' + cfg.path) : null));
+      if (resolvedUrl) renderShowreel(resolvedUrl);
     }
   } catch(e){}
 }
