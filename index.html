@@ -73,7 +73,6 @@
     .page { display:none; } .page.active { display:block; }
     .mt { margin-top:20px; }
     .back-btn { display:inline-flex; align-items:center; gap:6px; padding:10px 18px; border-radius:40px; border:none; font-weight:800; font-size:.8rem; color:var(--primary-accent); cursor:pointer; box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light); background:var(--card-bg); }
-    /* CHAT */
     .chat-box { border-radius:20px; padding:16px; display:flex; flex-direction:column; gap:10px; }
     .chat-log { display:flex; flex-direction:column; gap:10px; max-height:55vh; overflow-y:auto; padding:4px; }
     .msg { max-width:85%; padding:11px 15px; border-radius:16px; font-size:.88rem; font-weight:600; line-height:1.45; white-space:pre-wrap; }
@@ -180,12 +179,13 @@
   <!-- CHAT -->
   <div class="page" id="page-chat">
     <div class="chat-box neu-flat">
-      <div class="section-title" style="display:flex;align-items:center;gap:8px;"><span>🤖 Safa AI Assistant</span><span style="font-size:.6rem;color:#10b981;">● online</span></div>
+      <div class="section-title" style="display:flex;align-items:center;gap:8px;" id="chatHeader">🤖 Safa AI Assistant <span style="font-size:.6rem;color:#10b981;">● online</span></div>
+      <div id="ownerBanner" style="display:none;background:rgba(16,185,129,.12);border-left:3px solid #10b981;border-radius:12px;padding:10px 14px;font-size:.8rem;font-weight:700;">👤 You're now chatting with <b>Suleiman (Owner)</b> — Safa Glass &amp; Aluminum. The AI assistant will stay quiet.</div>
       <div class="chat-log" id="chatLog"></div>
       <div class="chips" id="chips">
         <button class="chip" onclick="chipAsk('How much are sliding windows?')">How much are windows?</button>
-        <button class="chip" onclick="chipAsk('What is the difference between casement and projected windows?')">Casement vs projected?</button>
         <button class="chip" onclick="chipAsk('How do I measure my windows?')">How do I measure?</button>
+        <button class="chip" onclick="requestOwner()">👤 Talk to Owner</button>
       </div>
       <div class="chat-input-row">
         <input class="f-input" id="chatInput" placeholder="Ask about windows, doors, glass..." onkeydown="if(event.key==='Enter')sendChat()">
@@ -237,6 +237,8 @@
 <script>
 const API = 'https://zola-0cd423e5.base44.app/functions/';
 
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
 /* THEMES */
 const popup = document.getElementById('colorPopup');
 function togglePopup(e){ e.stopPropagation(); popup.classList.toggle('open'); }
@@ -251,11 +253,12 @@ function switchTheme(t){
 (function(){ const s = localStorage.getItem('safa_theme'); if (s) switchTheme(s); })();
 
 /* NAV */
-function nav(view, catId){
+function nav(view){
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + view).classList.add('active');
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === view));
   if (view === 'work') loadWork();
+  if (view === 'chat') pollChat();
   window.scrollTo(0,0);
 }
 
@@ -294,7 +297,7 @@ function openCat(id){
     `<img class="hero" src="${c.img}" alt="${c.name}">
      <h3>${c.name}</h3><p>${c.desc}</p>
      ${c.feats.map(f => `<div class="feat">✔️ <span>${f}</span></div>`).join('')}
-     <p style="margin-top:12px;font-weight:700;color:var(--primary-accent);">Rough guide: standard 1m × 1m ≈ GH₵700-900 installed. Exact price after measurements.</p>`;
+     <p style="margin-top:12px;font-weight:700;color:var(--primary-accent);">Rough guide: GH₵1,000 per square metre of opening, installed. Exact price comes from the owner after measurements.</p>`;
   nav('cat');
 }
 function quoteThis(){ document.getElementById('qType').value = currentCat.name; nav('quote'); }
@@ -326,39 +329,80 @@ function openWhatsApp(){
   window.open('https://wa.me/233599931348?text=' + msg, '_blank');
 }
 
-/* CHAT */
+/* CHAT — AI + Owner handover */
 const chatLog = document.getElementById('chatLog');
-let history = [];
-function addMsg(text, who){
+let chatSid = localStorage.getItem('safa_chat_sid');
+if (!chatSid){ chatSid = 'web-' + Math.random().toString(36).slice(2,10) + Date.now().toString(36); localStorage.setItem('safa_chat_sid', chatSid); }
+let chatStatus = 'ai';
+let lastCount = -1;
+
+function addMsgEl(role, text){
   const d = document.createElement('div');
-  d.className = 'msg ' + who; d.textContent = text;
+  if (role === 'owner'){ d.className = 'msg bot'; d.innerHTML = '<div style="font-size:.6rem;font-weight:800;color:#10b981;margin-bottom:3px;">SULEIMAN — OWNER</div>' + esc(text); }
+  else if (role === 'system'){ d.className = 'msg bot'; d.style.fontStyle = 'italic'; d.textContent = text; }
+  else { d.className = 'msg ' + (role === 'customer' ? 'user' : 'bot'); d.textContent = text; }
   chatLog.appendChild(d); chatLog.scrollTop = chatLog.scrollHeight;
 }
-addMsg("Hello! I'm Safa's AI aluminum expert. Ask me anything about windows, doors, glass or prices — or send your measurements in the Quote tab for a free same-day quote.", 'bot');
+function setChatStatus(status){
+  chatStatus = status || 'ai';
+  const owner = chatStatus === 'owner';
+  document.getElementById('ownerBanner').style.display = owner ? 'block' : 'none';
+  document.getElementById('chips').style.display = owner ? 'none' : 'flex';
+  document.getElementById('chatHeader').innerHTML = owner
+    ? '👤 Suleiman — Owner <span style="font-size:.6rem;color:#10b981;">● connected</span>'
+    : '🤖 Safa AI Assistant <span style="font-size:.6rem;color:#10b981;">● online</span>';
+}
+function renderSession(msgs, status){
+  chatLog.innerHTML = '';
+  msgs.forEach(m => addMsgEl(m.role, m.text));
+  setChatStatus(status);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+async function pollChat(){
+  try {
+    const r = await fetch(API + 'safaChatLive', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id: chatSid})});
+    const d = await r.json();
+    if (!d.ok) return;
+    if (d.messages.length === 0 && lastCount === -1){
+      addMsgEl('ai', "Hello! I'm Safa's AI aluminum expert — ask me anything, or tap 'Talk to Owner' to chat with the owner directly. Guide prices are instant; exact quotes come from him.");
+      lastCount = 0;
+    } else if (d.messages.length !== lastCount){
+      lastCount = d.messages.length;
+      renderSession(d.messages, d.status);
+    } else setChatStatus(d.status);
+  } catch(e){}
+}
 function chipAsk(q){ document.getElementById('chatInput').value = q; sendChat(); }
 async function sendChat(){
   const inp = document.getElementById('chatInput');
   const msg = inp.value.trim(); if (!msg) return;
   inp.value = '';
-  addMsg(msg, 'user');
+  addMsgEl('customer', msg);
   document.getElementById('chips').style.display = 'none';
   const t = document.createElement('div'); t.className = 'msg bot typing'; t.textContent = 'Thinking…';
   chatLog.appendChild(t); chatLog.scrollTop = chatLog.scrollHeight;
   try {
-    const r = await fetch(API + 'safaChat', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ message: msg, history })
-    });
+    const r = await fetch(API + 'safaChat', {method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ message: msg, session_id: chatSid })});
     const d = await r.json();
     t.remove();
-    const reply = d.reply || "Sorry, I couldn't answer that — please WhatsApp us on 0599 931 348.";
-    addMsg(reply, 'bot');
-    history.push({ role:'user', content: msg }, { role:'assistant', content: reply });
-  } catch (e) {
-    t.remove();
-    addMsg("Connection problem — please WhatsApp us on 0599 931 348 and we'll answer you directly.", 'bot');
-  }
+    if (d.handover){ lastCount++; }
+    else if (d.reply){ addMsgEl('ai', d.reply); lastCount += 2; }
+  } catch(e){ t.remove(); addMsgEl('ai', "Connection problem — please WhatsApp us on 0599 931 348."); }
 }
+async function requestOwner(){
+  const t = document.createElement('div'); t.className = 'msg bot typing'; t.textContent = 'Notifying the owner…';
+  chatLog.appendChild(t); chatLog.scrollTop = chatLog.scrollHeight;
+  try {
+    const r = await fetch(API + 'safaChat', {method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ request_owner: true, session_id: chatSid, message: 'I would like to talk to the owner please' })});
+    const d = await r.json();
+    t.remove();
+    if (d.reply){ addMsgEl('ai', d.reply); lastCount++; }
+  } catch(e){ t.remove(); addMsgEl('ai', "Please WhatsApp 0599 931 348 instead."); }
+}
+pollChat();
+setInterval(() => { const pg = document.getElementById('page-chat'); if (pg && pg.classList.contains('active')) pollChat(); }, 4000);
 
 /* WORK */
 async function loadWork(){
@@ -367,7 +411,7 @@ async function loadWork(){
     const d = await r.json();
     const items = (d.items || []).slice(0, 30);
     document.getElementById('workGrid').innerHTML = items.map(i =>
-      `<div class="g-item"><img src="${i.image_url}" alt="${i.title || 'Our work'}" loading="lazy"><div class="g-cap">${i.title || ''}</div></div>`).join('');
+      `<div class="g-item"><img src="${i.image_url}" alt="${esc(i.title || 'Our work')}" loading="lazy"><div class="g-cap">${esc(i.title || '')}</div></div>`).join('');
   } catch (e) {
     document.getElementById('workGrid').innerHTML = '<div style="grid-column:1/3;font-size:.8rem;color:var(--text-muted);font-weight:600;">Could not load — check your connection.</div>';
   }
