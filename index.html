@@ -1,68 +1,231 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Safa Glass &amp; Aluminum — Quality Aluminium &amp; Glass Fabrication, Ghana</title>
-<meta name="description" content="Sliding windows, sliding doors, shop fronts, louvres and glass partitions — made to measure in Ghana. Send your window sizes, get an accurate quote fast.">
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Safa Glass &amp; Aluminum — Quality Fabrication, Ghana</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root, body[data-theme="white"] { --bg-color:#eef2f6; --card-bg:#eef2f6; --shadow-light:#ffffff; --shadow-dark:#cad1dc; --primary-accent:#a31d1d; --text-dark:#2b3445; --text-muted:#7d899b; }
+    body[data-theme="black"] { --bg-color:#16181a; --card-bg:#16181a; --shadow-light:#202326; --shadow-dark:#0c0d0e; --primary-accent:#ff4757; --text-dark:#f1f5f9; --text-muted:#8a99ad; }
+    body[data-theme="red"] { --bg-color:#2b1215; --card-bg:#2b1215; --shadow-light:#3a191d; --shadow-dark:#1c0b0e; --primary-accent:#ff4d4d; --text-dark:#fecdd3; --text-muted:#fda4af; }
+    body[data-theme="gold"] { --bg-color:#221d17; --card-bg:#221d17; --shadow-light:#2f2820; --shadow-dark:#15120e; --primary-accent:#fbbf24; --text-dark:#fef3c7; --text-muted:#d97706; }
+    body[data-theme="silver"] { --bg-color:#e2e8f0; --card-bg:#e2e8f0; --shadow-light:#ffffff; --shadow-dark:#cbd5e1; --primary-accent:#475569; --text-dark:#0f172a; --text-muted:#64748b; }
+    body[data-theme="blue"] { --bg-color:#0f172a; --card-bg:#0f172a; --shadow-light:#1e293b; --shadow-dark:#080d1a; --primary-accent:#38bdf8; --text-dark:#f8fafc; --text-muted:#94a3b8; }
+
+    * { box-sizing:border-box; margin:0; padding:0; font-family:'Plus Jakarta Sans',sans-serif; }
+    body { background-color:var(--bg-color); color:var(--text-dark); display:flex; justify-content:center; min-height:100vh; padding:15px; transition:background-color .4s ease,color .4s ease; }
+    .app-container { width:100%; max-width:420px; display:flex; flex-direction:column; gap:20px; position:relative; padding-bottom:70px; }
+    .neu-flat,.neu-inset,.neu-button { transition:background .4s ease,box-shadow .4s ease,color .4s ease; }
+    .neu-flat { background:var(--card-bg); box-shadow:6px 6px 14px var(--shadow-dark),-6px -6px 14px var(--shadow-light); }
+    .neu-inset { background:var(--card-bg); box-shadow:inset 4px 4px 8px var(--shadow-dark),inset -4px -4px 8px var(--shadow-light); }
+    .neu-button { background:var(--card-bg); box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light); border:none; cursor:pointer; }
+    .neu-button:active { box-shadow:inset 3px 3px 6px var(--shadow-dark),inset -3px -3px 6px var(--shadow-light); }
+
+    .header { display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-radius:20px; position:relative; }
+    .logo { font-size:1.25rem; font-weight:800; color:var(--text-dark); }
+    .logo span { color:var(--primary-accent); }
+    .header-actions { display:flex; gap:12px; align-items:center; }
+    .icon-btn { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+    .color-popup { position:absolute; top:65px; right:18px; padding:14px 16px; border-radius:18px; z-index:100; display:flex; flex-direction:column; gap:10px; opacity:0; visibility:hidden; transform:translateY(-10px) scale(.95); transition:all .3s cubic-bezier(.4,0,.2,1); }
+    .color-popup.open { opacity:1; visibility:visible; transform:translateY(0) scale(1); }
+    .popup-title { font-size:.7rem; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--text-muted); }
+    .color-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .color-option { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; }
+    .color-dot { width:28px; height:28px; border-radius:50%; border:2px solid transparent; transition:transform .2s ease,border-color .2s ease; }
+    .color-option:hover .color-dot { transform:scale(1.15); }
+    .color-option.active .color-dot { border-color:var(--text-dark); transform:scale(1.2); }
+    .option-name { font-size:.65rem; font-weight:700; color:var(--text-dark); }
+    .dot-white { background:#fff; border:1px solid #ccc !important; }
+    .dot-black { background:#16181a; border:1px solid #444 !important; }
+    .dot-red { background:#ff4d4d; } .dot-gold { background:#fbbf24; } .dot-silver { background:#cbd5e1; } .dot-blue { background:#38bdf8; }
+
+    .ring-section { display:flex; justify-content:center; margin:6px 0; }
+    .ring-outer { width:190px; height:190px; border-radius:50%; display:flex; align-items:center; justify-content:center; padding:12px; }
+    .ring-inner { width:100%; height:100%; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:10px; }
+    .ring-label { font-size:.85rem; font-weight:700; color:var(--primary-accent); margin-bottom:4px; }
+    .ring-amount { font-size:1.15rem; font-weight:800; }
+    .ring-sub { font-size:.7rem; color:var(--text-muted); font-weight:600; margin-top:4px; }
+
+    .action-bar { background-color:var(--primary-accent); border-radius:50px; padding:6px; display:flex; gap:6px; }
+    .action-btn { flex:1; padding:14px 0; border-radius:40px; font-size:.95rem; font-weight:700; color:var(--primary-accent); text-align:center; border:none; background:#ffffff; cursor:pointer; }
+
+    .section-title { font-size:.75rem; font-weight:800; letter-spacing:1px; color:var(--text-muted); text-transform:uppercase; margin-bottom:12px; }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+    .grid-item { display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer; }
+    .grid-icon-box { width:60px; height:60px; border-radius:18px; display:flex; align-items:center; justify-content:center; }
+    .grid-label { font-size:.8rem; font-weight:700; color:var(--text-dark); }
+    .icon-badge { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+    .bg-red { background:rgba(239,68,68,.2); } .bg-green { background:rgba(16,185,129,.2); } .bg-purple { background:rgba(168,85,247,.2); } .bg-orange { background:rgba(249,115,22,.2); }
+
+    .card { border-radius:20px; padding:16px; overflow:hidden; }
+    .card img { width:100%; height:170px; object-fit:cover; border-radius:14px; display:block; box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light); }
+    .card h3 { font-size:1.05rem; font-weight:800; margin:12px 0 6px; color:var(--text-dark); }
+    .card p { font-size:.85rem; color:var(--text-muted); font-weight:600; }
+
+    .gal { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .gal img { width:100%; height:100px; object-fit:cover; border-radius:14px; display:block; box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light); }
+
+    .form-card { border-radius:20px; padding:18px; display:flex; flex-direction:column; gap:12px; }
+    .f-label { font-size:.72rem; font-weight:800; letter-spacing:.5px; color:var(--text-muted); text-transform:uppercase; }
+    .f-input, .f-select, .f-textarea { width:100%; padding:13px 16px; border:none; border-radius:14px; font-size:.95rem; font-family:inherit; color:var(--text-dark); background:var(--card-bg); box-shadow:inset 4px 4px 8px var(--shadow-dark),inset -4px -4px 8px var(--shadow-light); outline:none; }
+    .f-textarea { min-height:90px; resize:vertical; }
+    .send-btn { background:var(--primary-accent); color:#fff; border:none; border-radius:40px; padding:15px 0; font-size:.95rem; font-weight:800; cursor:pointer; }
+    .send-btn:active { opacity:.85; }
+
+    .contact-list { display:flex; flex-direction:column; gap:10px; }
+    .c-item { display:flex; align-items:center; gap:12px; padding:13px 15px; border-radius:16px; box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light); }
+    .c-main { flex:1; }
+    .c-title { font-size:.88rem; font-weight:700; }
+    .c-sub { font-size:.7rem; color:var(--text-muted); font-weight:600; }
+
+    .whatsapp-btn { position:fixed; bottom:25px; right:25px; width:55px; height:55px; background:#25d366; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(37,211,102,.3); cursor:pointer; z-index:60; }
+    .whatsapp-btn svg { width:26px; height:26px; fill:#fff; }
+  </style>
 </head>
-<body>
-<nav class="nav"><div class="nav-in">
-<a class="logo" href="index.html">SAFA<span>GLASS &amp; ALUMINUM</span></a>
-<div class="menu">
-<a class="active" href="index.html">Home</a>
-<a href="services.html">Services</a>
-<a href="gallery.html">Gallery</a>
-<a href="quote.html">Get a Quote</a>
-<a href="about.html">About &amp; Contact</a>
-</div>
-</div></nav>
+<body data-theme="white">
+  <div class="app-container">
 
-<header class="hero">
-<div>
-<h1>Quality Aluminium &amp; Glass Fabrication</h1>
-<p>Sliding windows, doors, shop fronts and more — made to measure in Ghana.</p>
-<a class="btn btn-gold" href="tel:+233248503631">Call Now</a>
-<a class="btn btn-wa" href="https://wa.me/233599931348?text=Hello%20Safa%20Glass%20%26%20Aluminum%2C%20I%20need%20a%20quote." target="_blank" rel="noopener">WhatsApp Us</a>
-</div>
-</header>
+    <header class="header neu-flat">
+      <div class="logo">Safa Glass<span>&amp; Aluminum</span></div>
+      <div class="header-actions">
+        <button class="icon-btn neu-button" id="paletteBtn" onclick="togglePopup(event)" title="Change Color Theme">🎨</button>
+        <button class="icon-btn neu-button" onclick="location.href='tel:+233248503631'" title="Call">📞</button>
+      </div>
+      <div class="color-popup neu-flat" id="colorPopup">
+        <span class="popup-title">Choose Color</span>
+        <div class="color-grid">
+          <div class="color-option opt-white active" onclick="switchTheme('white')"><div class="color-dot dot-white"></div><span class="option-name">White</span></div>
+          <div class="color-option opt-black" onclick="switchTheme('black')"><div class="color-dot dot-black"></div><span class="option-name">Black</span></div>
+          <div class="color-option opt-red" onclick="switchTheme('red')"><div class="color-dot dot-red"></div><span class="option-name">Red</span></div>
+          <div class="color-option opt-gold" onclick="switchTheme('gold')"><div class="color-dot dot-gold"></div><span class="option-name">Gold</span></div>
+          <div class="color-option opt-silver" onclick="switchTheme('silver')"><div class="color-dot dot-silver"></div><span class="option-name">Silver</span></div>
+          <div class="color-option opt-blue" onclick="switchTheme('blue')"><div class="color-dot dot-blue"></div><span class="option-name">Blue</span></div>
+        </div>
+      </div>
+    </header>
 
-<section class="section">
-<div class="container">
-<h2 class="title">Why Choose Safa</h2>
-<p class="sub">Accurate, honest and fast — from the first measurement to the final installation.</p>
-<div class="grid">
-<div class="value"><div class="ic">📐</div><h3>Same-Day Accurate Quotes</h3><p>Send us your window sizes and receive a professional, itemized quote fast — no guessing.</p></div>
-<div class="value"><div class="ic">🛠️</div><h3>Quality KS50 Fabrication</h3><p>Precision-cut aluminum profiles and proper fitting glass, built to last in Ghana's climate.</p></div>
-<div class="value"><div class="ic">✅</div><h3>Expert Installation</h3><p>Clean workmanship and a guaranteed fit, delivered by experienced hands.</p></div>
-</div>
-</div>
-</section>
+    <section class="ring-section">
+      <div class="ring-outer neu-flat">
+        <div class="ring-inner neu-inset">
+          <span class="ring-label">Get a Quote</span>
+          <span class="ring-amount">Same Day</span>
+          <span class="ring-sub">Send your window sizes</span>
+        </div>
+      </div>
+    </section>
 
-<section class="section alt">
-<div class="container">
-<h2 class="title">Our Services</h2>
-<p class="sub">Everything aluminum and glass, for homes and businesses.</p>
-<div class="grid">
-<div class="card"><img src="assets/sliding-window.png" alt="Sliding Windows"><div class="card-body"><h3>Sliding Windows</h3><p>Smooth two-panel and multi-panel sliding windows with dark or clear glass.</p><a href="services.html">Learn more →</a></div></div>
-<div class="card"><img src="assets/sliding-door.png" alt="Sliding Doors"><div class="card-body"><h3>Sliding Doors</h3><p>Wide, secure sliding doors for living rooms, balconies and entrances.</p><a href="services.html">Learn more →</a></div></div>
-<div class="card"><img src="assets/shopfront.png" alt="Shop Fronts"><div class="card-body"><h3>Partitions &amp; Shop Fronts</h3><p>Aluminum-framed glass shop fronts and office partitions that show your business clearly.</p><a href="services.html">Learn more →</a></div></div>
-<div class="card"><img src="assets/louvre.png" alt="Louvre Windows"><div class="card-body"><h3>Louvre Windows</h3><p>Adjustable glass louvre blades for airflow and easy control.</p><a href="services.html">Learn more →</a></div></div>
-</div>
-</div>
-</section>
+    <section class="action-bar">
+      <button class="action-btn" onclick="document.getElementById('quote').scrollIntoView({behavior:'smooth'})">Get a Quote</button>
+      <button class="action-btn" onclick="location.href='https://wa.me/233599931348?text=Hello%20Safa%20Glass%20%26%20Aluminum.'">WhatsApp</button>
+    </section>
 
-<section class="band">
-<h2>Have window sizes?</h2>
-<p>Send them to us on WhatsApp — receive a professional itemized quote within 24 hours.</p>
-<a class="btn btn-gold" href="quote.html">Get a Quote</a>
-</section>
+    <section>
+      <div class="section-title">Quick Access</div>
+      <div class="grid-4">
+        <div class="grid-item" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">
+          <div class="grid-icon-box neu-button"><div class="icon-badge bg-red">🪟</div></div><span class="grid-label">Windows</span>
+        </div>
+        <div class="grid-item" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">
+          <div class="grid-icon-box neu-button"><div class="icon-badge bg-green">🚪</div></div><span class="grid-label">Doors</span>
+        </div>
+        <div class="grid-item" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">
+          <div class="grid-icon-box neu-button"><div class="icon-badge bg-purple">🏪</div></div><span class="grid-label">Shopfronts</span>
+        </div>
+        <div class="grid-item" onclick="document.getElementById('quote').scrollIntoView({behavior:'smooth'})">
+          <div class="grid-icon-box neu-button"><div class="icon-badge bg-orange">📋</div></div><span class="grid-label">Quote</span>
+        </div>
+      </div>
+    </section>
 
-<footer>
-<b>SAFA GLASS &amp; ALUMINUM</b> — Quality Aluminium &amp; Glass Fabrication<br>
-0248 503 631 / 0599 931 348 &nbsp;|&nbsp; safaglassaluminum@gmail.com &nbsp;|&nbsp; <a href="https://facebook.com/SafaGlassAluminum">Facebook: @SafaGlassAluminum</a><br>
-Ghana &nbsp;|&nbsp; Mobile Money: MTN 0599 931 348
-</footer>
+    <section id="services" class="card neu-flat">
+      <div class="section-title">Our Services</div>
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <div><img src="assets/sliding-window.png" alt="Sliding windows"><h3>Sliding Windows</h3><p>Two-panel and multi-panel sliding windows — gray, white or bronze frames with clear, dark or tinted glass.</p></div>
+        <div><img src="assets/sliding-door.png" alt="Sliding doors"><h3>Sliding Doors</h3><p>Wide, secure sliding doors for living rooms, balconies and entrances.</p></div>
+        <div><img src="assets/shopfront.png" alt="Shop fronts"><h3>Shop Fronts &amp; Partitions</h3><p>Aluminum-framed glass shop fronts and office partitions that show your business clearly.</p></div>
+        <div><img src="assets/louvre.png" alt="Louvre windows"><h3>Louvre Windows</h3><p>Adjustable glass blades for maximum airflow and easy control.</p></div>
+        <div><img src="assets/hero-building.png" alt="Fixed and top hung windows"><h3>Fixed Glass &amp; Top Hung</h3><p>Fixed panels, top hung and projected windows — exact fit, proper sealing.</p></div>
+        <div><img src="assets/partition.png" alt="Glass partitions"><h3>Glass Supply &amp; Replacement</h3><p>We cut and supply glass and replace broken panels in existing frames.</p></div>
+      </div>
+    </section>
+
+    <section class="card neu-flat">
+      <div class="section-title">Our Work</div>
+      <div class="gal">
+        <img src="assets/hero-building.png" alt="Storey building windows">
+        <img src="assets/sliding-window.png" alt="Sliding window dark glass">
+        <img src="assets/sliding-door.png" alt="Sliding door">
+        <img src="assets/shopfront.png" alt="Shop front">
+        <img src="assets/louvre.png" alt="Louvres">
+        <img src="assets/partition.png" alt="Partition">
+      </div>
+    </section>
+
+    <section id="quote" class="form-card neu-flat">
+      <div class="section-title">Get a Quote</div>
+      <div><div class="f-label">Your Name</div><input class="f-input" id="qName" placeholder="e.g. Kwame Mensah"></div>
+      <div><div class="f-label">Phone</div><input class="f-input" id="qPhone" type="tel" placeholder="e.g. 024 000 0000"></div>
+      <div><div class="f-label">What do you need?</div>
+        <select class="f-select" id="qType">
+          <option>Sliding Windows</option><option>Sliding Doors</option><option>Fixed Glass</option>
+          <option>Top Hung / Projected Windows</option><option>Louvre Windows</option>
+          <option>Partitions / Shop Front</option><option>Glass Supply / Replacement</option>
+        </select></div>
+      <div><div class="f-label">Measurements — Width × Height (mm), one per line</div>
+        <textarea class="f-textarea" id="qSizes" placeholder="1720 × 1580&#10;1200 × 1200"></textarea></div>
+      <button class="send-btn" onclick="sendQuote()">Send on WhatsApp</button>
+    </section>
+
+    <section class="card neu-flat">
+      <div class="section-title">Contact Us</div>
+      <div class="contact-list">
+        <div class="c-item"><div class="icon-badge bg-green">📞</div><div class="c-main"><div class="c-title">0248 503 631 / 0599 931 348</div><div class="c-sub">Call or WhatsApp anytime</div></div></div>
+        <div class="c-item"><div class="icon-badge bg-purple">✉️</div><div class="c-main"><div class="c-title">safaglassaluminum@gmail.com</div><div class="c-sub">Email us</div></div></div>
+        <div class="c-item"><div class="icon-badge bg-orange">👍</div><div class="c-main"><div class="c-title">@SafaGlassAluminum</div><div class="c-sub">Facebook</div></div></div>
+        <div class="c-item"><div class="icon-badge bg-red">💵</div><div class="c-main"><div class="c-title">MTN MoMo 0599 931 348</div><div class="c-sub">Mobile Money</div></div></div>
+      </div>
+    </section>
+
+    <section class="card neu-flat">
+      <div class="section-title">About Safa</div>
+      <p>Safa Glass &amp; Aluminum fabricates and installs windows, doors, louvres, partitions and shop fronts across Ghana. Every job starts with an accurate, itemized estimate — no guessing, no surprises. Measure well, cut right, fit perfectly.</p>
+      <p style="margin-top:10px;font-weight:700;">Suleiman "Never Hide" Alhassan — Founder</p>
+    </section>
+
+  </div>
+
+  <div class="whatsapp-btn" onclick="location.href='https://wa.me/233599931348?text=Hello%20Safa%20Glass%20%26%20Aluminum.'">
+    <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+  </div>
+
+  <script>
+    const popup = document.getElementById('colorPopup');
+    function togglePopup(event) { event.stopPropagation(); popup.classList.toggle('open'); }
+    function switchTheme(themeName) {
+      document.body.setAttribute('data-theme', themeName);
+      localStorage.setItem('safa_theme', themeName);
+      document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('active'));
+      const activeOpt = document.querySelector('.opt-' + themeName);
+      if (activeOpt) activeOpt.classList.add('active');
+      popup.classList.remove('open');
+    }
+    (function () { const saved = localStorage.getItem('safa_theme'); if (saved) switchTheme(saved); })();
+    document.addEventListener('click', (event) => {
+      if (!popup.contains(event.target) && event.target !== paletteBtn) popup.classList.remove('open');
+    });
+
+    function sendQuote() {
+      const g = id => document.getElementById(id).value.trim();
+      const name = g('qName'), phone = g('qPhone'), type = g('qType'), sizes = g('qSizes');
+      if (!name || !sizes) { alert('Please enter your name and the measurements.'); return; }
+      let msg = '*QUOTATION REQUEST — Safa Glass & Aluminum*%0A%0A'
+        + 'Name: ' + encodeURIComponent(name) + '%0A'
+        + 'Phone: ' + encodeURIComponent(phone || '-') + '%0A'
+        + 'Type: ' + encodeURIComponent(type) + '%0A'
+        + 'Measurements (Width x Height, mm):%0A' + encodeURIComponent(sizes);
+      window.open('https://wa.me/233599931348?text=' + msg, '_blank');
+    }
+  </script>
 </body>
 </html>
