@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Safa Glass &amp; Aluminum — Quality Fabrication, Ghana</title>
-  <!-- v5: installable app (PWA) — manifest, service worker, offline shell, install button. v4: AI chat memory on device, admin-managed window types, glass showreel video, movable WhatsApp -->
+  <!-- v6: scrollable roomy homepage — responsive 16:9 showreel that shows the whole video without cropping, no overlapping elements. v5: installable app (PWA). v4: AI chat memory on device, admin-managed window types, glass showreel video, movable WhatsApp -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#a31d1d">
   <link rel="icon" type="image/png" href="icons/icon-192.png">
@@ -22,7 +22,8 @@
     body[data-theme="blue"] { --bg-color:#0f172a; --card-bg:#0f172a; --shadow-light:#1e293b; --shadow-dark:#080d1a; --primary-accent:#38bdf8; --text-dark:#f8fafc; --text-muted:#94a3b8; }
     * { box-sizing:border-box; margin:0; padding:0; font-family:'Plus Jakarta Sans',sans-serif; }
     body { background:var(--bg-color); color:var(--text-dark); display:flex; justify-content:center; min-height:100vh; padding:15px; transition:background-color .4s,color .4s; }
-    .app-container { width:100%; max-width:460px; display:flex; flex-direction:column; gap:20px; position:relative; padding-bottom:90px; }
+    .app-container { width:100%; max-width:460px; display:flex; flex-direction:column; gap:22px; position:relative; padding-bottom:130px; }
+    html { scroll-behavior:smooth; }
     .neu-flat,.neu-inset,.neu-button { transition:background .4s,box-shadow .4s,color .4s; }
     .neu-flat { background:var(--card-bg); box-shadow:6px 6px 14px var(--shadow-dark),-6px -6px 14px var(--shadow-light); }
     .neu-inset { background:var(--card-bg); box-shadow:inset 4px 4px 8px var(--shadow-dark),inset -4px -4px 8px var(--shadow-light); }
@@ -92,17 +93,18 @@
     .chat-input-row { display:flex; gap:10px; }
     .chat-input-row input { flex:1; }
     .send-ico { width:52px; height:52px; border-radius:50%; background:var(--primary-accent); color:#fff; border:none; font-size:1.2rem; cursor:pointer; }
-    .whatsapp-btn { position:fixed; bottom:90px; right:20px; width:52px; height:52px; background:#25d366; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(37,211,102,.3); cursor:pointer; z-index:60; }
+    .whatsapp-btn { position:fixed; bottom:96px; right:20px; width:52px; height:52px; background:#25d366; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(37,211,102,.3); cursor:pointer; z-index:60; }
     .whatsapp-btn svg { width:25px; height:25px; fill:#fff; }
     /* v4 — glass showreel video section */
-    .showreel { position:relative; padding:18px; border-radius:26px; overflow:hidden; }
+    .showreel { position:relative; padding:18px; border-radius:26px; overflow:hidden; margin:4px 0; }
     .showreel-ring { position:relative; width:100%; border-radius:22px; overflow:hidden; box-shadow:inset 3px 3px 8px var(--shadow-dark),inset -3px -3px 8px var(--shadow-light); background:var(--card-bg); }
     .showreel-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
     .showreel-head .section-title { margin-bottom:0; }
     .live-dot { width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block; animation:pulse 1.6s infinite; }
     @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(16,185,129,.5);} 70%{box-shadow:0 0 0 8px rgba(16,185,129,0);} 100%{box-shadow:0 0 0 0 rgba(16,185,129,0);} }
-    .video-frame { position:relative; width:100%; height:210px; border-radius:18px; overflow:hidden; background:#000; }
-    .video-frame img, .video-frame video, .video-frame iframe { width:100%; height:100%; object-fit:cover; border:none; display:block; }
+    .video-frame { position:relative; width:100%; aspect-ratio:16/9; height:auto; border-radius:18px; overflow:hidden; background:#000; }
+    .video-frame img, .video-frame iframe { width:100%; height:100%; object-fit:cover; border:none; display:block; }
+    .video-frame video { width:100%; height:100%; object-fit:contain; border:none; display:block; background:#000; }
     .video-cover { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; cursor:pointer; background:rgba(0,0,0,.25); }
     .play-btn { width:58px; height:58px; border-radius:50%; background:rgba(255,255,255,.85); display:flex; align-items:center; justify-content:center; font-size:1.4rem; box-shadow:0 10px 26px rgba(0,0,0,.35); cursor:pointer; transition:transform .2s; }
     .play-btn:active { transform:scale(.9); }
@@ -539,7 +541,7 @@ function renderShowreel(url){
     frame.innerHTML = '<img src="https://i.ytimg.com/vi/' + yid + '/hqdefault.jpg" alt="Showreel">' +
       '<div class="video-cover" onclick="playYt(\'' + yid + '\')"><div class="play-btn">▶</div><div class="play-hint">Tap to watch</div></div>';
   } else {
-    frame.innerHTML = '<video src="' + esc(url) + '" controls playsinline preload="metadata"></video>';
+    frame.innerHTML = '<video src="' + esc(url) + '" controls playsinline preload="metadata" class="vid-ready"></video>';
   }
   document.getElementById('showreel').style.display = 'block';
 }
