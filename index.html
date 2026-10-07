@@ -118,6 +118,8 @@
     /* v4 — draggable whatsapp */
     .whatsapp-btn { touch-action:none; user-select:none; -webkit-user-select:none; }
     .whatsapp-btn.dragging { transition:none; box-shadow:0 14px 30px rgba(37,211,102,.45); transform:scale(1.08); }
+    .msg img.pic { max-width:100%; width:100%; border-radius:12px; display:block; box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light); }
+    .msg-pic { align-self:flex-start; max-width:85%; padding:8px; border-radius:16px; box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light); background:var(--card-bg); }
     .ok-banner { display:none; text-align:center; padding:24px 16px; border-radius:20px; box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light); }
     .ok-banner .big { font-size:2.2rem; }
     .ok-banner h4 { font-size:1.05rem; font-weight:800; margin:8px 0 4px; }
@@ -560,11 +562,28 @@ try { chatMem = JSON.parse(localStorage.getItem('safa_chat_history') || '[]') ||
 function saveChatMem(){ try { localStorage.setItem('safa_chat_history', JSON.stringify(chatMem.slice(-200))); } catch(e){} }
 
 function addMsgEl(role, text){
-  const d = document.createElement('div');
-  if (role === 'owner'){ d.className = 'msg bot'; d.innerHTML = '<div style="font-size:.6rem;font-weight:800;color:#10b981;margin-bottom:3px;">SULEIMAN — OWNER</div>' + esc(text); }
-  else if (role === 'system'){ d.className = 'msg bot'; d.style.fontStyle = 'italic'; d.textContent = text; }
-  else { d.className = 'msg ' + (role === 'customer' ? 'user' : 'bot'); d.textContent = text; }
-  chatLog.appendChild(d); chatLog.scrollTop = chatLog.scrollHeight;
+  // parse picture markers: [[IMG:url]] becomes a real image bubble
+  const parts = String(text || '').split(/(\[\[IMG:[^\]]+\]\])/g).filter(p => p !== '');
+  if (parts.length === 0) parts.push('');
+  for (const part of parts){
+    const m = part.match(/^\[\[IMG:(https?:\/\/[^\s\]]+)\]\]$/);
+    if (m){
+      const wrap = document.createElement('div');
+      wrap.className = 'msg-pic';
+      const img = document.createElement('img');
+      img.className = 'pic'; img.src = m[1]; img.alt = 'Example window'; img.loading = 'lazy';
+      wrap.appendChild(img);
+      chatLog.appendChild(wrap);
+    } else {
+      if (part.trim() === '') continue;
+      const d = document.createElement('div');
+      if (role === 'owner'){ d.className = 'msg bot'; d.innerHTML = '<div style="font-size:.6rem;font-weight:800;color:#10b981;margin-bottom:3px;">SULEIMAN — OWNER</div>' + esc(part); }
+      else if (role === 'system'){ d.className = 'msg bot'; d.style.fontStyle = 'italic'; d.textContent = part; }
+      else { d.className = 'msg ' + (role === 'customer' ? 'user' : 'bot'); d.textContent = part; }
+      chatLog.appendChild(d);
+    }
+  }
+  chatLog.scrollTop = chatLog.scrollHeight;
 }
 function setChatStatus(status){
   chatStatus = status || 'ai';
