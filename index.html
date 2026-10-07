@@ -122,7 +122,164 @@
     .ok-banner .big { font-size:2.2rem; }
     .ok-banner h4 { font-size:1.05rem; font-weight:800; margin:8px 0 4px; }
     .ok-banner p { font-size:.8rem; color:var(--text-muted); font-weight:600; }
-  </style>
+  
+/* ================================================================
+   SAFA MOTION SYSTEM v7 — deep CSS animation layer
+   All effects are transform/opacity based (GPU compositing).
+   Disabled automatically for reduced-motion users.
+   ================================================================ */
+:root{
+  --ease-spring: cubic-bezier(.22,1.42,.36,1);
+  --ease-out:    cubic-bezier(.16,1,.3,1);
+  --ease-io:     cubic-bezier(.65,.05,.36,1);
+  --dur-fast:.22s; --dur-mid:.45s; --dur-slow:.8s;
+}
+
+/* ---------- page transition ---------- */
+.page.active{ animation: pageIn var(--dur-mid) var(--ease-out) both; }
+@keyframes pageIn{ from{ opacity:0; transform:translateY(16px) scale(.99); } to{ opacity:1; transform:none; } }
+
+/* ---------- ambient drifting glass orbs (background) ---------- */
+.app-container::before, .app-container::after{
+  content:''; position:fixed; z-index:-1; width:52vmax; height:52vmax; border-radius:50%;
+  filter:blur(70px); opacity:.09; pointer-events:none;
+}
+.app-container::before{
+  background:radial-gradient(circle at 30% 30%, var(--primary-accent), transparent 62%);
+  top:-16vmax; left:-18vmax;
+  animation: orbDrift 26s var(--ease-io) infinite alternate;
+}
+.app-container::after{
+  background:radial-gradient(circle at 70% 70%, #10b981, transparent 62%);
+  bottom:-20vmax; right:-16vmax;
+  animation: orbDrift 34s var(--ease-io) infinite alternate-reverse;
+}
+@keyframes orbDrift{
+  0%  { transform:translate(0,0) scale(1); }
+  50% { transform:translate(9vmax,7vmax) scale(1.18); }
+  100%{ transform:translate(-7vmax,11vmax) scale(.92); }
+}
+
+/* ---------- scroll-reveal engine (JS adds .rv / .on + --d) ---------- */
+.rv{ opacity:0; transform:translateY(26px); will-change:transform,opacity; }
+.rv.rv-left{ transform:translateX(-32px); }
+.rv.rv-pop{ transform:scale(.86); }
+.rv.rv-blur{ filter:blur(6px); transform:translateY(18px); }
+.rv.on{ animation: rvUp .65s var(--ease-out) both; animation-delay: calc(var(--d,0) * 70ms); }
+.rv.rv-left.on{ animation-name: rvLeft; }
+.rv.rv-pop.on{ animation-name: rvPop; }
+.rv.rv-blur.on{ animation-name: rvBlurIn; }
+@keyframes rvUp{ from{ opacity:0; transform:translateY(26px); } to{ opacity:1; transform:none; } }
+@keyframes rvLeft{ from{ opacity:0; transform:translateX(-32px); } to{ opacity:1; transform:none; } }
+@keyframes rvPop{ from{ opacity:0; transform:scale(.86); } to{ opacity:1; transform:none; } }
+@keyframes rvBlurIn{ from{ opacity:0; filter:blur(6px); transform:translateY(18px); } to{ opacity:1; filter:blur(0); transform:none; } }
+
+/* section titles get a drawn underline once revealed */
+.section-title{ position:relative; }
+.section-title::after{
+  content:''; position:absolute; left:0; bottom:-6px; height:3px; width:46px; border-radius:3px;
+  background:linear-gradient(90deg,var(--primary-accent),transparent);
+  transform:scaleX(0); transform-origin:left; opacity:.85;
+}
+.section-title.on::after{ animation: lineGrow .55s var(--ease-out) .25s forwards; }
+@keyframes lineGrow{ to{ transform:scaleX(1); } }
+
+/* ---------- hero ring: rotating conic glow + breathing ---------- */
+.ring-outer{ position:relative; }
+.ring-outer::before{
+  content:''; position:absolute; inset:-7px; border-radius:50%; pointer-events:none;
+  background:conic-gradient(from 0deg, transparent 0 55%, var(--primary-accent) 72%, transparent 88%);
+  filter:blur(7px); opacity:.32;
+  animation: spinGlow 6s linear infinite;
+}
+.ring-outer::after{
+  content:''; position:absolute; inset:0; border-radius:50%; pointer-events:none;
+  box-shadow:0 0 34px -6px var(--primary-accent);
+  animation: breathe 4.5s ease-in-out infinite;
+}
+@keyframes spinGlow{ to{ transform:rotate(360deg); } }
+@keyframes breathe{ 0%,100%{ opacity:.25; } 50%{ opacity:.7; } }
+
+/* ---------- video frame breathing glow ---------- */
+.video-frame{ animation: frameGlow 5.5s ease-in-out infinite; }
+@keyframes frameGlow{ 0%,100%{ box-shadow:0 0 0 1px rgba(0,0,0,.04); } 50%{ box-shadow:0 12px 34px -14px var(--primary-accent); } }
+
+/* ---------- card shimmer sweep on hover (content cards only —
+     the header/tab-bar are skipped so popups never get clipped) ---------- */
+.card.neu-flat, .showreel.neu-flat, .form-card.neu-flat, .chat-box.neu-flat{
+  position:relative; overflow:hidden;
+}
+.card.neu-flat::after, .showreel.neu-flat::after, .form-card.neu-flat::after, .chat-box.neu-flat::after{
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:1;
+  background:linear-gradient(105deg, transparent 42%, rgba(255,255,255,.45) 50%, transparent 58%);
+  transform:translateX(-130%);
+}
+.card.neu-flat:hover::after, .showreel.neu-flat:hover::after,
+.form-card.neu-flat:hover::after, .chat-box.neu-flat:hover::after{ animation: shimmer 1.1s ease both; }
+@keyframes shimmer{ to{ transform:translateX(130%); } }
+
+/* ---------- micro-interactions: springs ---------- */
+.action-btn, .send-btn, .back-btn, .send-ico, .chip, .color-option, .grid-item, .c-item, .tab-btn, .icon-btn{
+  transition: transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast) ease;
+}
+.action-btn:active, .send-btn:active, .back-btn:active, .send-ico:active,
+.chip:active, .color-option:active, .grid-item:active, .c-item:active, .tab-btn:active, .icon-btn:active{
+  transform:scale(.94);
+}
+.action-btn:hover, .send-btn:hover{ transform:translateY(-2px); }
+.chip:hover{ transform:translateY(-2px) scale(1.04); }
+.grid-item:hover, .c-item:hover{ transform:translateY(-3px); }
+
+/* ---------- tab bar: active icon wiggle ---------- */
+.tab-btn .ti{ transition:transform var(--dur-fast) var(--ease-spring); }
+.tab-btn.active .ti{ animation: wiggle 1.9s var(--ease-io) infinite; }
+@keyframes wiggle{
+  0%,100%{ transform:rotate(0) scale(1); }
+  5%{ transform:rotate(-13deg) scale(1.18); } 10%{ transform:rotate(11deg); }
+  15%{ transform:rotate(-7deg); } 20%{ transform:rotate(4deg); } 25%{ transform:rotate(0) scale(1); }
+}
+
+/* ---------- WhatsApp button: radiating pulse rings ---------- */
+.whatsapp-btn::before, .whatsapp-btn::after{
+  content:''; position:absolute; inset:0; border-radius:50%; pointer-events:none;
+  border:2px solid #25d366;
+  animation: pulseRing 2.4s ease-out infinite;
+}
+.whatsapp-btn::after{ animation-delay:1.2s; }
+@keyframes pulseRing{ 0%{ transform:scale(1); opacity:.55; } 100%{ transform:scale(1.85); opacity:0; } }
+
+/* ---------- chat: every message slides in with a spring ---------- */
+.msg{ animation: msgIn .42s var(--ease-spring) both; }
+@keyframes msgIn{ from{ opacity:0; transform:translateY(12px) scale(.97); } to{ opacity:1; transform:none; } }
+
+/* ---------- chips pop in staggered on page entry ---------- */
+.chip{ animation: chipPop .5s var(--ease-spring) both; animation-delay: calc(var(--ci,0) * 80ms); }
+@keyframes chipPop{ from{ opacity:0; transform:scale(.7); } to{ opacity:1; transform:none; } }
+
+/* ---------- success banner: celebratory pop + glow ---------- */
+.ok-banner{ animation: okPop .7s var(--ease-spring) both; }
+.ok-banner .big{ animation: okBounce 1.4s var(--ease-spring) .3s both; }
+@keyframes okPop{ from{ opacity:0; transform:scale(.8); } to{ opacity:1; transform:none; } }
+@keyframes okBounce{ 0%{ transform:scale(0);} 60%{ transform:scale(1.25);} 100%{ transform:scale(1);} }
+
+/* ---------- color popup spring ---------- */
+.color-popup.open{ animation: popIn .45s var(--ease-spring) both; }
+@keyframes popIn{ from{ opacity:0; transform:translateY(-10px) scale(.9); } to{ opacity:1; transform:none; } }
+
+/* ---------- hero logo gentle float ---------- */
+.logo{ animation: floaty 6s ease-in-out infinite; }
+@keyframes floaty{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
+
+/* ---------- reduced motion: everything calms down ---------- */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration:.001s !important; animation-iteration-count:1 !important;
+    transition-duration:.001s !important; scroll-behavior:auto !important;
+  }
+  .rv{ opacity:1; transform:none; filter:none; }
+  .section-title::after{ transform:scaleX(1); }
+}
+</style>
 </head>
 <body data-theme="white">
 <div class="app-container">
@@ -598,5 +755,48 @@ function installApp(){
     let p = null; try { p = JSON.parse(localStorage.getItem('safa_wa_pos') || 'null'); } catch(e){}
     if (p) apply(...clamp(p.l, p.t));
   });
+})();
+</script>
+
+<script>
+/* ================================================================
+   SAFA MOTION ENGINE — reveal-on-view, staggered, page-replay
+   ================================================================ */
+(function(){
+  var SELECT = ['.ring-section','.action-bar','.showreel','.card','.form-card','.chat-box',
+                '.section-title','.grid-3','.grid-item','.feat','.gal .g-item','.c-item'].join(',');
+  var els = document.querySelectorAll(SELECT);
+  var counters = {};
+
+  els.forEach(function(el){
+    var page = el.closest('.page');
+    var key = page ? page.id : 'root';
+    counters[key] = (counters[key] || 0) + 1;
+    var n = counters[key];
+    el.classList.add('rv');
+    el.style.setProperty('--d', Math.min(n, 8));
+    if (el.classList.contains('section-title') || el.classList.contains('grid-item') || el.classList.contains('g-item')) el.classList.add('rv-pop');
+    else if (n % 2 === 0) el.classList.add('rv-left');
+  });
+
+  /* chat chips staggered pop */
+  document.querySelectorAll('.chip').forEach(function(c, i){ c.style.setProperty('--ci', i); });
+
+  if (!('IntersectionObserver' in window)){
+    els.forEach(function(el){ el.classList.add('on'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if (e.isIntersecting) e.target.classList.add('on'); });
+  }, { threshold: .12, rootMargin: '0px 0px -6% 0px' });
+  els.forEach(function(el){ io.observe(el); });
+
+  /* replay the reveal choreography whenever a page is re-entered */
+  var origNav = window.nav;
+  window.nav = function(view){
+    if (origNav) origNav(view);
+    var pg = document.getElementById('page-' + view);
+    if (pg) pg.querySelectorAll('.rv').forEach(function(el){ el.classList.remove('on'); });
+  };
 })();
 </script>
