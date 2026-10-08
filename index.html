@@ -750,12 +750,23 @@ async function requestOwner(){
 }
 pollChat();
 setInterval(() => { const pg = document.getElementById('page-chat'); if (pg && pg.classList.contains('active')) pollChat(); }, 4000);
+/* v16 — live gallery: new photos appear on their own while the Work tab is open */
+function lbIsOpen(){ const lb = document.getElementById('lightbox'); return lb && lb.style.display !== 'none' && lb.style.display !== ''; }
+setInterval(() => {
+  const pg = document.getElementById('page-work');
+  if (pg && pg.classList.contains('active') && !lbIsOpen()) loadWork();
+}, 30000);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) return;
+  const pg = document.getElementById('page-work');
+  if (pg && pg.classList.contains('active')) loadWork();
+});
 
 /* WORK */
 let WORKITEMS = []; let workCat = 'All'; let lbIdx = 0;
 async function loadWork(){
   try {
-    const r = await fetch(API + 'safaGallery', { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
+    const r = await fetch(API + 'safaGallery', { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}', cache:'no-store' });
     const d = await r.json();
     WORKITEMS = (d.items || []).filter(i => String(i.category || '').indexOf('__sys') !== 0);
     renderWork();
