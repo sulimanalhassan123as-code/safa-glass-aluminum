@@ -62,7 +62,26 @@
     .card h3 { font-size:1.05rem; font-weight:800; margin:12px 0 6px; }
     .card p { font-size:.85rem; color:var(--text-muted); font-weight:600; line-height:1.5; }
     .feat { display:flex; align-items:center; gap:8px; font-size:.82rem; font-weight:600; margin-top:8px; }
-    .gal { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    /* v11 — visitor gallery with categories + lightbox */
+    .chips { display:flex; gap:8px; overflow-x:auto; padding:2px 0 8px; -webkit-overflow-scrolling:touch; }
+    .chip { flex:none; border:none; border-radius:30px; padding:8px 15px; font-size:.68rem; font-weight:800; color:var(--text-muted); background:var(--card-bg); box-shadow:3px 3px 8px var(--shadow-dark),-3px -3px 8px var(--shadow-light); cursor:pointer; transition:all .2s; }
+    .chip.on { background:var(--primary-accent); color:#fff; box-shadow:none; }
+    .gal { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+    @media(min-width:540px){ .gal { grid-template-columns:repeat(3,1fr); } }
+    .pitem { border-radius:16px; overflow:hidden; background:var(--card-bg); box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light); cursor:pointer; animation:msgIn .42s var(--ease-spring) both; }
+    .pitem img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block; }
+    .pitem .pi-t { font-size:.78rem; font-weight:800; color:var(--text-dark); padding:8px 10px 2px; line-height:1.3; }
+    .pitem .pi-d { font-size:.64rem; color:var(--text-muted); padding:0 10px 10px; line-height:1.45; font-weight:600; }
+    .g-cap { font-size:.62rem; font-weight:700; color:var(--text-muted); margin-top:4px; text-align:center; }
+    #lightbox { position:fixed; inset:0; background:rgba(8,10,14,.95); z-index:999; display:none; flex-direction:column; }
+    #lbWrap { flex:1; display:flex; align-items:center; justify-content:center; min-height:0; padding:56px 10px 10px; }
+    #lbWrap img { max-width:100%; max-height:100%; object-fit:contain; border-radius:12px; }
+    #lbText { padding:14px 18px 22px; text-align:center; color:#fff; }
+    #lbText .lb-t { font-size:.95rem; font-weight:800; }
+    #lbText .lb-c { font-size:.62rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; opacity:.6; margin-bottom:4px; }
+    #lbText .lb-d { font-size:.78rem; opacity:.85; margin-top:6px; line-height:1.5; max-width:520px; margin-left:auto; margin-right:auto; }
+    .lb-btn { position:absolute; top:50%; transform:translateY(-50%); border:none; width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.14); color:#fff; font-size:1.2rem; cursor:pointer; }
+    .lb-x { position:absolute; top:14px; right:14px; border:none; width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,.14); color:#fff; font-size:1rem; cursor:pointer; }
     .gal .g-item { position:relative; }
     .gal img { width:100%; height:105px; object-fit:cover; border-radius:14px; display:block; box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light); }
     .g-cap { font-size:.62rem; font-weight:700; color:var(--text-muted); margin-top:4px; text-align:center; }
@@ -118,8 +137,6 @@
     /* v4 — draggable whatsapp */
     .whatsapp-btn { touch-action:none; user-select:none; -webkit-user-select:none; }
     .whatsapp-btn.dragging { transition:none; box-shadow:0 14px 30px rgba(37,211,102,.45); transform:scale(1.08); }
-    .msg img.pic { max-width:100%; width:100%; border-radius:12px; display:block; box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light); }
-    .msg-pic { align-self:flex-start; max-width:85%; padding:8px; border-radius:16px; box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light); background:var(--card-bg); }
     .ok-banner { display:none; text-align:center; padding:24px 16px; border-radius:20px; box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light); }
     .ok-banner .big { font-size:2.2rem; }
     .ok-banner h4 { font-size:1.05rem; font-weight:800; margin:8px 0 4px; }
@@ -290,7 +307,7 @@
     <div class="logo">Safa Glass<span>&amp; Aluminum</span></div>
     <div class="header-actions">
       <button class="icon-btn neu-button" id="paletteBtn" onclick="togglePopup(event)">🎨</button>
-      <button class="icon-btn neu-button" onclick="location.href='tel:+233248503631'">📞</button>
+      <button class="icon-btn neu-button" onclick="location.href='tel:+233599931348'">📞</button>
     </div>
     <div class="color-popup neu-flat" id="colorPopup">
       <span class="popup-title">Choose Color</span>
@@ -364,8 +381,10 @@
       <div><div class="f-label">Phone</div><input class="f-input" id="qPhone" type="tel" placeholder="e.g. 024 000 0000"></div>
       <div><div class="f-label">What do you need? *</div>
         <select class="f-select" id="qType"></select></div>
-      <div><div class="f-label">Measurements — Width × Height (mm), one per line *</div>
-        <textarea class="f-textarea" id="qSizes" placeholder="1720 × 1580&#10;1200 × 1200"></textarea></div>
+      <div><div class="f-label">Measurements — add each window/door *</div>
+        <div id="mRows" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <button type="button" class="action-btn" style="margin-top:8px;padding:10px;font-size:.75rem;" onclick="addMRow()">+ Add another measurement</button>
+        <div style="font-size:.62rem;color:var(--text-muted);font-weight:600;margin-top:6px;">Enter WIDTH × HEIGHT in millimetres. Not sure? Send us a message on WhatsApp and we'll measure for you.</div></div>
       <div><div class="f-label">Note (optional)</div><input class="f-input" id="qNote" placeholder="e.g. dark glass, gray frames"></div>
       <button class="send-btn" onclick="sendQuote()">Send to Safa</button>
       <div style="text-align:center;font-size:.68rem;color:var(--text-muted);font-weight:600;">Goes straight to Safa — we respond same day. You can also send it on WhatsApp.</div>
@@ -400,8 +419,18 @@
   <div class="page" id="page-work">
     <div class="card neu-flat">
       <div class="section-title">Our Work</div>
+      <div class="chips" id="workChips"></div>
       <div class="gal" id="workGrid"><div style="grid-column:1/3;font-size:.8rem;color:var(--text-muted);font-weight:600;">Loading our projects…</div></div>
     </div>
+  </div>
+
+  <!-- full-screen photo viewer -->
+  <div id="lightbox" onclick="if(event.target.id==='lightbox')closeLb()">
+    <button class="lb-x" onclick="closeLb()">✕</button>
+    <button class="lb-btn" style="left:10px;" onclick="lbNav(-1)" id="lbPrev">‹</button>
+    <button class="lb-btn" style="right:10px;" onclick="lbNav(1)" id="lbNext">›</button>
+    <div id="lbWrap"><img id="lbImg" alt=""></div>
+    <div id="lbText"></div>
   </div>
 
   <!-- CONTACT -->
@@ -409,7 +438,7 @@
     <div class="card neu-flat">
       <div class="section-title">Contact Safa</div>
       <div class="contact-list">
-        <div class="c-item" onclick="location.href='tel:+233248503631'"><div class="bg-green" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;">📞</div><div class="c-main"><div class="c-title">0248 503 631 / 0599 931 348</div><div class="c-sub">Call anytime</div></div></div>
+        <div class="c-item" onclick="location.href='tel:+233599931348'"><div class="bg-green" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;">📞</div><div class="c-main"><div class="c-title">0599 931 348</div><div class="c-sub">Call anytime</div></div></div>
         <div class="c-item" onclick="openWhatsApp()"><div class="bg-green" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;">💬</div><div class="c-main"><div class="c-title">WhatsApp Chat</div><div class="c-sub">0599 931 348 — live chat with us</div></div></div>
         <div class="c-item" onclick="location.href='mailto:safaglassaluminum@gmail.com'"><div class="bg-purple" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;">✉️</div><div class="c-main"><div class="c-title">safaglassaluminum@gmail.com</div><div class="c-sub">Email</div></div></div>
         <div class="c-item" onclick="location.href='https://facebook.com/SafaGlassAluminum'"><div class="bg-blue" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;">👍</div><div class="c-main"><div class="c-title">@SafaGlassAluminum</div><div class="c-sub">Facebook</div></div></div>
@@ -438,6 +467,18 @@
 
 <script>
 const API = 'https://zola-0cd423e5.base44.app/functions/';
+
+/* ---------------- SAFA ALARM SYSTEM (do NOT remove — see "Safa Alarm System" note) ----------------
+   When a customer needs the owner, raise an alarm here. This creates a SafaAlert record via the
+   safaAlarm backend function; the owner's Safa Alarm APK rings over the lock screen and his
+   Telegram alarm chain fires until he responds. */
+const ALARM_API = 'https://zola-0cd423e5.base44.app/functions/safaAlarm';
+function raiseAlarm(reason, text){
+  try {
+    fetch(ALARM_API, { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'alert', reason: reason, session_id: chatSid, text: text || '' }) }).catch(function(){});
+  } catch(e){}
+}
 
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
@@ -520,15 +561,48 @@ function openCat(id){
 function quoteThis(){ document.getElementById('qType').value = currentCat.name; nav('quote'); }
 
 /* QUOTE */
+let MROWS = [];
+function addMRow(type){
+  MROWS.push({ type: type || '', width: '', height: '', qty: '1' });
+  renderMRows();
+}
+function renderMRows(){
+  const types = (typeof CATS !== 'undefined' && CATS.length ? CATS : DEFAULT_CATS).map(c => c.name);
+  const box = document.getElementById('mRows');
+  box.innerHTML = MROWS.map((r, i) => `
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;background:var(--card-bg);border-radius:14px;padding:10px;box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light);">
+      <span style="font-size:.65rem;font-weight:800;color:var(--text-muted);width:14px;">${i + 1}</span>
+      <select class="f-select" id="mt${i}" style="flex:1;min-width:110px;padding:8px;" onchange="MROWS[${i}].type=this.value">
+        ${types.map(t => `<option value="${t}" ${r.type === t ? 'selected' : ''}>${t}</option>`).join('')}
+      </select>
+      <input class="f-input" id="mw${i}" type="number" inputmode="numeric" placeholder="Width mm" value="${r.width}" style="width:84px;padding:8px;" oninput="MROWS[${i}].width=this.value">
+      <span style="font-weight:800;color:var(--text-muted);">×</span>
+      <input class="f-input" id="mh${i}" type="number" inputmode="numeric" placeholder="Height mm" value="${r.height}" style="width:84px;padding:8px;" oninput="MROWS[${i}].height=this.value">
+      <input class="f-input" id="mq${i}" type="number" inputmode="numeric" placeholder="Qty" value="${r.qty}" style="width:60px;padding:8px;" oninput="MROWS[${i}].qty=this.value">
+      <button type="button" onclick="MROWS.splice(${i},1);renderMRows()" style="border:none;background:rgba(239,68,68,.12);color:#ef4444;border-radius:10px;padding:8px 10px;font-size:.8rem;font-weight:800;">✕</button>
+    </div>`).join('');
+}
 async function sendQuote(){
   const v = id => document.getElementById(id).value.trim();
-  const name = v('qName'), sizes = v('qSizes');
-  if (!name || !sizes){ alert('Please enter your name and the measurements.'); return; }
+  const name = v('qName');
+  if (!name){ alert('Please enter your name.'); return; }
+  /* sync type selects + collect */
+  const items = [];
+  let bad = false;
+  MROWS.forEach((r, i) => {
+    const sel = document.getElementById('mt' + i);
+    const type = sel ? sel.value : r.type;
+    const w = Number(r.width), h = Number(r.height), q = Number(r.qty) || 1;
+    if (w > 0 && h > 0) items.push({ type, width: w, height: h, qty: q });
+    else bad = true;
+  });
+  if (!items.length){ alert('Please add at least one measurement with width and height in mm.'); return; }
+  if (bad && !confirm('One row is missing its width or height and will not be sent. Continue?')) return;
   const btn = document.querySelector('#quoteForm .send-btn'); btn.textContent = 'Sending…'; btn.disabled = true;
   try {
-    await fetch(API + 'safaSubmitQuote', {
+    await fetch(API + 'safaMeasure', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ name, phone:v('qPhone'), type:v('qType'), sizes, note:v('qNote') })
+      body: JSON.stringify({ action: 'submit', data: { name, phone:v('qPhone'), note:v('qNote'), items } })
     });
   } catch (e) { /* still show WhatsApp option */ }
   document.getElementById('quoteForm').style.display = 'none';
@@ -537,12 +611,17 @@ async function sendQuote(){
 }
 function openWhatsApp(){
   const v = id => document.getElementById(id).value.trim();
-  const name = v('qName'), sizes = v('qSizes');
+  const name = v('qName');
   let msg = '*QUOTATION REQUEST — Safa Glass & Aluminum*%0A%0A';
   if (name) msg += 'Name: ' + encodeURIComponent(name) + '%0A';
-  if (v('qPhone')) msg += 'Phone: ' + encodeURIComponent(v('qPhone')) + '%0A';
-  if (v('qType')) msg += 'Type: ' + encodeURIComponent(v('qType')) + '%0A';
-  if (sizes) msg += 'Measurements (Width x Height, mm):%0A' + encodeURIComponent(sizes);
+  if (v('qPhone')) msg += 'Phone: ' + encodeURIComponent(v('qPhone')) + '%0A%0A';
+  msg += 'Measurements (Width x Height, mm):%0A';
+  MROWS.forEach((r, i) => {
+    const sel = document.getElementById('mt' + i);
+    const type = sel ? sel.value : (r.type || 'Window');
+    msg += encodeURIComponent((i + 1) + '. ' + type + ' — ' + (r.width || '?') + ' x ' + (r.height || '?') + ' mm, qty ' + (r.qty || 1)) + '%0A';
+  });
+  if (v('qNote')) msg += '%0ANote: ' + encodeURIComponent(v('qNote'));
   window.open('https://wa.me/233599931348?text=' + msg, '_blank');
 }
 
@@ -562,28 +641,25 @@ try { chatMem = JSON.parse(localStorage.getItem('safa_chat_history') || '[]') ||
 function saveChatMem(){ try { localStorage.setItem('safa_chat_history', JSON.stringify(chatMem.slice(-200))); } catch(e){} }
 
 function addMsgEl(role, text){
-  // parse picture markers: [[IMG:url]] becomes a real image bubble
-  const parts = String(text || '').split(/(\[\[IMG:[^\]]+\]\])/g).filter(p => p !== '');
-  if (parts.length === 0) parts.push('');
-  for (const part of parts){
-    const m = part.match(/^\[\[IMG:(https?:\/\/[^\s\]]+)\]\]$/);
-    if (m){
-      const wrap = document.createElement('div');
-      wrap.className = 'msg-pic';
+  const d = document.createElement('div');
+  if (role === 'owner'){ d.className = 'msg bot'; d.innerHTML = '<div style="font-size:.6rem;font-weight:800;color:#10b981;margin-bottom:3px;">SULEIMAN — OWNER</div>' + esc(text); }
+  else if (role === 'system'){ d.className = 'msg bot'; d.style.fontStyle = 'italic'; d.textContent = text; }
+  else {
+    d.className = 'msg ' + (role === 'customer' ? 'user' : 'bot');
+    // AI example pictures: [[IMG:url]] -> real inline photo (tap to enlarge)
+    const im = String(text || '').match(/\[\[IMG:(https?:\/\/[^\]\s]+)\]\]/);
+    const clean = String(text || '').replace(/\[\[IMG:[^\]]*\]\]/g, '').trim();
+    d.textContent = clean;
+    if (im && role !== 'customer'){
       const img = document.createElement('img');
-      img.className = 'pic'; img.src = m[1]; img.alt = 'Example window'; img.loading = 'lazy';
-      wrap.appendChild(img);
-      chatLog.appendChild(wrap);
-    } else {
-      if (part.trim() === '') continue;
-      const d = document.createElement('div');
-      if (role === 'owner'){ d.className = 'msg bot'; d.innerHTML = '<div style="font-size:.6rem;font-weight:800;color:#10b981;margin-bottom:3px;">SULEIMAN — OWNER</div>' + esc(part); }
-      else if (role === 'system'){ d.className = 'msg bot'; d.style.fontStyle = 'italic'; d.textContent = part; }
-      else { d.className = 'msg ' + (role === 'customer' ? 'user' : 'bot'); d.textContent = part; }
-      chatLog.appendChild(d);
+      img.src = im[1]; img.alt = 'Safa example';
+      img.style.cssText = 'display:block;width:100%;max-width:260px;border-radius:12px;margin-top:8px;cursor:zoom-in;';
+      img.onclick = () => window.open(im[1], '_blank');
+      img.onerror = () => img.remove();
+      d.appendChild(img);
     }
   }
-  chatLog.scrollTop = chatLog.scrollHeight;
+  chatLog.appendChild(d); chatLog.scrollTop = chatLog.scrollHeight;
 }
 function setChatStatus(status){
   chatStatus = status || 'ai';
@@ -637,6 +713,8 @@ async function sendChat(){
   inp.value = '';
   addMsgEl('customer', msg);
   chatMem.push({ role: 'customer', text: msg }); saveChatMem();
+  /* SAFA ALARM: first message from this visitor = new lead */
+  if (!localStorage.getItem('safa_alarm_lead')){ localStorage.setItem('safa_alarm_lead','1'); raiseAlarm('new_lead', msg); }
   document.getElementById('chips').style.display = 'none';
   const t = document.createElement('div'); t.className = 'msg bot typing'; t.textContent = 'Thinking…';
   chatLog.appendChild(t); chatLog.scrollTop = chatLog.scrollHeight;
@@ -647,12 +725,16 @@ async function sendChat(){
     const d = await r.json();
     t.remove();
     if (d.reply && !d.handover){ addMsgEl('ai', d.reply); chatMem.push({ role: 'ai', text: d.reply }); saveChatMem(); }
+    /* SAFA ALARM: the no-price rule answered = customer asking for a price */
+    if (d.source === 'rule') raiseAlarm('price_request', msg);
   } catch(e){ t.remove(); addMsgEl('ai', "Connection problem — please WhatsApp us on 0599 931 348."); }
   chatBusy = false;
   syncChat();
 }
 async function requestOwner(){
   if (chatBusy) return;
+  /* SAFA ALARM: customer explicitly wants the owner */
+  raiseAlarm('owner_request', 'Customer tapped "Talk to Owner"');
   const t = document.createElement('div'); t.className = 'msg bot typing'; t.textContent = 'Notifying the owner…';
   chatLog.appendChild(t); chatLog.scrollTop = chatLog.scrollHeight;
   chatBusy = true;
@@ -670,18 +752,65 @@ pollChat();
 setInterval(() => { const pg = document.getElementById('page-chat'); if (pg && pg.classList.contains('active')) pollChat(); }, 4000);
 
 /* WORK */
+let WORKITEMS = []; let workCat = 'All'; let lbIdx = 0;
 async function loadWork(){
   try {
     const r = await fetch(API + 'safaGallery', { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
     const d = await r.json();
-    const items = (d.items || []).filter(i => !String(i.category || '').startsWith('__sys')).slice(0, 30);
-    document.getElementById('workGrid').innerHTML = items.map(i =>
-      `<div class="g-item"><img src="${i.image_url}" alt="${esc(i.title || 'Our work')}" loading="lazy"><div class="g-cap">${esc(i.title || '')}</div></div>`).join('');
-  } catch (e) {
+    WORKITEMS = (d.items || []).filter(i => String(i.category || '').indexOf('__sys') !== 0);
+    renderWork();
+  } catch(e){
     document.getElementById('workGrid').innerHTML = '<div style="grid-column:1/3;font-size:.8rem;color:var(--text-muted);font-weight:600;">Could not load — check your connection.</div>';
   }
 }
+function renderWork(){
+  const cats = ['All']; WORKITEMS.forEach(i => { const c = (i.category || '').trim(); if (c && cats.indexOf(c) < 0) cats.push(c); });
+  document.getElementById('workChips').innerHTML = cats.map(c =>
+    `<button class="chip ${c === workCat ? 'on' : ''}" onclick="workCat='${esc(c)}';renderWork()">${esc(c === 'All' ? 'All Work' : c)}</button>`).join('');
+  const items = workCat === 'All' ? WORKITEMS : WORKITEMS.filter(i => (i.category || '').trim() === workCat);
+  document.getElementById('workGrid').innerHTML = items.map((i, idx) =>
+    `<div class="pitem" onclick="openLb(${WORKITEMS.indexOf(i)})"><img src="${i.image_url}" alt="${esc(i.title || 'Our work')}" loading="lazy"><div class="pi-t">${esc(i.title || 'Our Work')}</div>${i.desc ? `<div class="pi-d">${esc(i.desc)}</div>` : ''}</div>`).join('')
+    || '<div style="grid-column:1/3;font-size:.8rem;color:var(--text-muted);font-weight:600;">No photos in this category yet.</div>';
+}
+function openLb(idx){
+  lbIdx = idx;
+  document.getElementById('lightbox').style.display = 'flex';
+  renderLb();
+}
+function renderLb(){
+  const i = WORKITEMS[lbIdx]; if (!i) return;
+  document.getElementById('lbImg').src = i.image_url;
+  document.getElementById('lbText').innerHTML =
+    (i.category ? `<div class="lb-c">${esc(i.category)}</div>` : '') +
+    `<div class="lb-t">${esc(i.title || 'Our Work')}</div>` +
+    (i.desc ? `<div class="lb-d">${esc(i.desc)}</div>` : '');
+  document.getElementById('lbPrev').style.display = WORKITEMS.length > 1 ? 'block' : 'none';
+  document.getElementById('lbNext').style.display = WORKITEMS.length > 1 ? 'block' : 'none';
+}
+function lbNav(d){ lbIdx = (lbIdx + d + WORKITEMS.length) % WORKITEMS.length; renderLb(); }
+function closeLb(){ document.getElementById('lightbox').style.display = 'none'; }
+document.addEventListener('keydown', e => {
+  const lb = document.getElementById('lightbox');
+  if (!lb || lb.style.display === 'none') return;
+  if (e.key === 'Escape') closeLb();
+  if (e.key === 'ArrowLeft') lbNav(-1);
+  if (e.key === 'ArrowRight') lbNav(1);
+});
+(function(){ /* swipe in the lightbox */
+  let x0 = null;
+  const w = document.getElementById('lbWrap');
+  if (!w) return;
+  w.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive:true });
+  w.addEventListener('touchend', e => {
+    if (x0 == null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 40) lbNav(dx < 0 ? 1 : -1);
+    x0 = null;
+  }, { passive:true });
+})();
 
+
+if (document.getElementById('mRows')) { addMRow(); }
 /* ---------------- v4: ADMIN-MANAGED SITE CONFIG (window types & showreel video) ---------------- */
 /* Types and video live in the gallery backend as system items (category __sys_*), set from the Admin portal. */
 async function loadSiteConfig(){
@@ -701,6 +830,7 @@ async function loadSiteConfig(){
       }));
       currentCat = CATS[0];
       renderCats();
+      if (typeof renderMRows === 'function' && MROWS.length) renderMRows(); /* refresh measurement type selects */
     }
     const vids = items.filter(i => i.category === '__sys_video__');
     if (vids.length){
