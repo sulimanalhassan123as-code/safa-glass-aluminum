@@ -554,8 +554,7 @@ function openCat(id){
   document.getElementById('catDetail').innerHTML =
     `<img class="hero" src="${cimg}" alt="${esc(c.name)}">
      <h3>${c.name}</h3><p>${c.desc}</p>
-     ${c.feats.map(f => `<div class="feat">✔️ <span>${f}</span></div>`).join('')}
-     <p style="margin-top:12px;font-weight:700;color:var(--primary-accent);">Rough guide: GH₵1,000 per square metre of opening, installed. Exact price comes from the owner after measurements.</p>`;
+     ${c.feats.map(f => `<div class="feat">✔️ <span>${f}</span></div>`).join('')}`;
   nav('cat');
 }
 function quoteThis(){ document.getElementById('qType').value = currentCat.name; nav('quote'); }
@@ -833,12 +832,16 @@ async function loadSiteConfig(){
       try { return { cfg: JSON.parse(i.title), icon: i.image_url }; } catch(e){ return null; }
     }).filter(Boolean);
     if (types.length){
-      CATS = types.map((t, idx) => ({
+      const customCats = types.map((t, idx) => ({
         id: String(t.cfg.name || ('type' + idx)).toLowerCase().replace(/[^a-z0-9]+/g, '-'),
         name: t.cfg.name, emoji: t.cfg.emoji || '🪟',
         img: (t.icon && t.icon.length > 200) ? t.icon : '', bg: BADGES[idx % BADGES.length],
         desc: t.cfg.desc || '', feats: Array.isArray(t.cfg.feats) ? t.cfg.feats : []
       }));
+      /* v18: admin-added types are ADDED to the default products — they never wipe them out.
+         A custom type with the same name as a default replaces that default (so you can edit it). */
+      const cn = customCats.map(c => String(c.name || '').toLowerCase().trim());
+      CATS = DEFAULT_CATS.filter(d => cn.indexOf(String(d.name || '').toLowerCase().trim()) < 0).concat(customCats);
       currentCat = CATS[0];
       renderCats();
       if (typeof renderMRows === 'function' && MROWS.length) renderMRows(); /* refresh measurement type selects */
