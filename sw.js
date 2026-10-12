@@ -1,5 +1,5 @@
 /* Safa Glass v6 — service worker: offline app shell */
-const CACHE = 'safa-glass-v18-products';
+const CACHE = 'safa-glass-v19';
 const CORE = [
   './', './index.html', './manifest.json',
   './assets/hero-building.png', './assets/louvre.png', './assets/partition.png',
