@@ -401,12 +401,12 @@
   <div class="page" id="page-chat">
     <div class="chat-box neu-flat">
       <div class="section-title" style="display:flex;align-items:center;gap:8px;" id="chatHeader">🤖 Safa AI Assistant <span style="font-size:.6rem;color:#10b981;">● online</span></div>
-      <div id="ownerBanner" style="display:none;background:rgba(16,185,129,.12);border-left:3px solid #10b981;border-radius:12px;padding:10px 14px;font-size:.8rem;font-weight:700;">👤 You're now chatting with <b>Suleiman (Owner)</b> — Safa Glass &amp; Aluminum. The AI assistant will stay quiet.</div>
+      <div id="ownerBanner" style="display:none;background:rgba(16,185,129,.12);border-left:3px solid #10b981;border-radius:12px;padding:10px 14px;font-size:.8rem;font-weight:700;">👤 You're now chatting with <b>Suleiman — Safa Specialist</b> — Safa Glass &amp; Aluminum. The AI assistant will stay quiet.</div>
       <div class="chat-log" id="chatLog"></div>
       <div class="chips" id="chips">
         <button class="chip" onclick="chipAsk('How much are sliding windows?')">How much are windows?</button>
         <button class="chip" onclick="chipAsk('How do I measure my windows?')">How do I measure?</button>
-        <button class="chip" onclick="requestOwner()">👤 Talk to Owner</button>
+        <button class="chip" onclick="requestOwner()">💬 Talk to a Specialist</button>
       </div>
       <div class="chat-input-row">
         <input class="f-input" id="chatInput" placeholder="Ask about windows, doors, glass..." onkeydown="if(event.key==='Enter')sendChat()">
@@ -641,7 +641,7 @@ function saveChatMem(){ try { localStorage.setItem('safa_chat_history', JSON.str
 
 function addMsgEl(role, text){
   const d = document.createElement('div');
-  if (role === 'owner'){ d.className = 'msg bot'; d.innerHTML = '<div style="font-size:.6rem;font-weight:800;color:#10b981;margin-bottom:3px;">SULEIMAN — OWNER</div>' + esc(text); }
+  if (role === 'owner'){ d.className = 'msg bot'; d.innerHTML = '<div style="font-size:.6rem;font-weight:800;color:#10b981;margin-bottom:3px;">SULEIMAN — SAFA SPECIALIST</div>' + esc(text); }
   else if (role === 'system'){ d.className = 'msg bot'; d.style.fontStyle = 'italic'; d.textContent = text; }
   else {
     d.className = 'msg ' + (role === 'customer' ? 'user' : 'bot');
@@ -666,7 +666,7 @@ function setChatStatus(status){
   document.getElementById('ownerBanner').style.display = owner ? 'block' : 'none';
   document.getElementById('chips').style.display = owner ? 'none' : 'flex';
   document.getElementById('chatHeader').innerHTML = owner
-    ? '👤 Suleiman — Owner <span style="font-size:.6rem;color:#10b981;">● connected</span>'
+    ? '👤 Suleiman — Specialist <span style="font-size:.6rem;color:#10b981;">● connected</span>'
     : '🤖 Safa AI Assistant <span style="font-size:.6rem;color:#10b981;">● online</span>';
 }
 function renderSession(msgs, status){
@@ -687,7 +687,7 @@ async function pollChat(){
     const d = await r.json();
     if (!d.ok) return;
     if (d.messages.length === 0 && chatMem.length === 0){
-      const w = "Hello! I'm Safa's AI aluminum expert — ask me anything, or tap 'Talk to Owner' to chat with the owner directly. Guide prices are instant; exact quotes come from him.";
+      const w = "Hello! I'm Safa's AI aluminum expert — ask me anything, or tap 'Talk to a Specialist' to chat with one of our team directly. Exact quotes come from our specialist.";
       chatMem = [{ role: 'ai', text: w }]; saveChatMem(); addMsgEl('ai', w);
       lastCount = 0;
     } else if (d.messages.length !== lastCount){
@@ -732,14 +732,12 @@ async function sendChat(){
 }
 async function requestOwner(){
   if (chatBusy) return;
-  /* SAFA ALARM: customer explicitly wants the owner */
-  raiseAlarm('owner_request', 'Customer tapped "Talk to Owner"');
-  const t = document.createElement('div'); t.className = 'msg bot typing'; t.textContent = 'Notifying the owner…';
+  const t = document.createElement('div'); t.className = 'msg bot typing'; t.textContent = 'Connecting you to a specialist…';
   chatLog.appendChild(t); chatLog.scrollTop = chatLog.scrollHeight;
   chatBusy = true;
   try {
     const r = await fetch(API + 'safaChat', {method:'POST',headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ request_owner: true, session_id: chatSid, message: 'I would like to talk to the owner please' })});
+      body: JSON.stringify({ request_owner: true, session_id: chatSid, message: 'I would like to talk to a specialist please' })});
     const d = await r.json();
     t.remove();
     if (d.reply){ addMsgEl('ai', d.reply); chatMem.push({ role: 'ai', text: d.reply }); saveChatMem(); }
