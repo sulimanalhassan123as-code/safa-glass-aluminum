@@ -334,6 +334,7 @@
     <section class="action-bar">
       <button class="action-btn" onclick="nav('quote')">Get a Quote</button>
       <button class="action-btn" onclick="nav('chat')">Chat with AI</button>
+      <button class="action-btn" onclick="nav('color')">🎨 Color Advisor</button>
     </section>
     <!-- v5 — INSTALL APP -->
     <section style="text-align:center;">
@@ -394,6 +395,32 @@
       <h4>Quote request sent!</h4>
       <p>Safa has received your measurements and will contact you the same day.</p>
       <button class="action-btn" style="margin-top:14px;background:#25d366;color:#fff;" onclick="openWhatsApp()">Also send on WhatsApp</button>
+    </div>
+  </div>
+
+  
+  <!-- COLOR ADVISOR (v6) -->
+  <div class="page" id="page-color">
+    <div class="form-card neu-flat">
+      <div class="section-title">🎨 Which Color Fits Your House?</div>
+      <div class="feat">📸 <span>Take a quick photo of your house (front view works best)</span></div>
+      <div class="feat">🤖 <span>Our AI looks at your walls, roof and style</span></div>
+      <div class="feat">✅ <span>You get the best frame color + glass for YOUR house</span></div>
+      <div style="margin-top:14px;">
+        <input type="file" id="colorFile" accept="image/*" capture="environment" style="display:none;" onchange="onHousePhoto(this)">
+        <button class="send-btn" id="colorPickBtn" onclick="pickHousePhoto()">📷 Take / Choose Photo</button>
+      </div>
+      <div id="colorStatus" style="display:none;text-align:center;font-size:.72rem;font-weight:700;color:var(--text-muted);margin-top:10px;"></div>
+      <div id="colorPreviewWrap" style="display:none;margin-top:12px;"><img id="colorPreview" style="width:100%;border-radius:14px;" alt="Your house"></div>
+    </div>
+    <div class="card neu-flat" id="colorResult" style="display:none;">
+      <div class="section-title">🎨 Our Recommendation</div>
+      <div id="colorAdvice" style="font-size:.82rem;line-height:1.55;"></div>
+      <div id="colorExample" style="margin-top:12px;"></div>
+      <section class="action-bar" style="margin-top:14px;">
+        <button class="action-btn" onclick="nav('chat');chatPrefill('I used the Color Advisor and I like the recommendation. I want to discuss my windows.');">💬 Continue in Chat</button>
+        <button class="action-btn" style="background:#25d366;color:#fff;" onclick="openWhatsApp()">WhatsApp Us</button>
+      </section>
     </div>
   </div>
 
@@ -917,6 +944,66 @@ function installApp(){
     if (p) apply(...clamp(p.l, p.t));
   });
 })();
+
+/* ================================================================
+   COLOR ADVISOR (v6) — photo -> AI color recommendation
+   ================================================================ */
+const SB_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhva3Fsdmtvd2NydWpwcGVsaWlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MTg1MDUsImV4cCI6MjA5NTI5NDUwNX0._iO6p71kJRiBWH-fJ1j7GWDNmMcjSMN5nseNU4VN8tE";
+function pickHousePhoto(){ document.getElementById('colorFile').click(); }
+function chatPrefill(t){ try{ document.getElementById('chatInput').value = t; }catch(e){} }
+async function onHousePhoto(input){
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const status = document.getElementById('colorStatus');
+  const pickBtn = document.getElementById('colorPickBtn');
+  const result = document.getElementById('colorResult');
+  result.style.display = 'none';
+  status.style.display = 'block';
+  pickBtn.disabled = true; pickBtn.style.opacity = .6;
+  try {
+    status.textContent = 'Preparing photo…';
+    // compress client-side: max 1280px, JPEG — saves customer data
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(file); });
+    const scale = Math.min(1, 1280 / Math.max(img.width, img.height));
+    const cv = document.createElement('canvas');
+    cv.width = Math.round(img.width * scale); cv.height = Math.round(img.height * scale);
+    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+    const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.82));
+    status.textContent = 'Uploading photo…';
+    const name = 'house-' + Date.now() + '.jpg';
+    const up = await fetch('https://hokqlvkowcrujppeliip.supabase.co/storage/v1/object/safa-media/color-photos/' + name, {
+      method: 'POST', headers: { 'apikey': SB_ANON_KEY, 'Authorization': 'Bearer ' + SB_ANON_KEY, 'Content-Type': 'image/jpeg' },
+      body: blob
+    });
+    if (!up.ok) throw new Error('Upload failed (' + up.status + ')');
+    const url = 'https://hokqlvkowcrujppeliip.supabase.co/storage/v1/object/public/safa-media/color-photos/' + name;
+    document.getElementById('colorPreview').src = url;
+    document.getElementById('colorPreviewWrap').style.display = 'block';
+    status.textContent = 'AI is looking at your house… 🤖';
+    const r = await fetch('https://zola-0cd423e5.base44.app/functions/safaColorAdvice', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image_url: url, message: 'This is my house — which window frame color and glass will fit it best?' })
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'AI failed to analyze the photo.');
+    status.style.display = 'none';
+    let advice = d.advice || '';
+    let example = '';
+    const m = advice.match(/\[\[IMG:(https?:\/\/[^\]]+)\]\]/);
+    if (m){ advice = advice.replace(m[0], '').trim(); example = m[1]; }
+    document.getElementById('colorAdvice').textContent = advice;
+    document.getElementById('colorExample').innerHTML = example
+      ? '<img src="' + example + '" style="width:100%;border-radius:14px;" alt="Example"><div style="font-size:.66rem;color:var(--text-muted);font-weight:600;text-align:center;margin-top:4px;">Example of our work — the recommended look</div>'
+      : '';
+    result.style.display = 'block';
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (err) {
+    status.textContent = 'Sorry — something went wrong. Please try again or WhatsApp us 0599 931 348.';
+  } finally {
+    pickBtn.disabled = false; pickBtn.style.opacity = 1;
+    input.value = '';
+  }
+}
 </script>
 
 <script>
