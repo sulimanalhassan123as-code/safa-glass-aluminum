@@ -1004,6 +1004,20 @@ async function onHousePhoto(input){
     input.value = '';
   }
 }
+
+/* ================================================================
+   VISITOR TRACKING (v7) — counts unique visitors for the admin portal
+   ================================================================ */
+(function(){
+  try {
+    var vid = localStorage.getItem('safa_vid');
+    if (!vid) { vid = 'v-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8); localStorage.setItem('safa_vid', vid); }
+    fetch('https://zola-0cd423e5.base44.app/functions/safaVisitLog', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'log', session_id: vid, page: 'home', referrer: document.referrer || 'direct', ua: navigator.userAgent.slice(0, 200) })
+    }).catch(function(){});
+  } catch (e) {}
+})();
 </script>
 
 <script>
