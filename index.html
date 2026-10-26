@@ -406,9 +406,11 @@
       <div class="feat">📸 <span>Take a quick photo of your house (front view works best)</span></div>
       <div class="feat">🤖 <span>Our AI looks at your walls, roof and style</span></div>
       <div class="feat">✅ <span>You get the best frame color + glass for YOUR house</span></div>
-      <div style="margin-top:14px;">
-        <input type="file" id="colorFile" accept="image/*" capture="environment" style="display:none;" onchange="onHousePhoto(this)">
-        <button class="send-btn" id="colorPickBtn" onclick="pickHousePhoto()">📷 Take / Choose Photo</button>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px;">
+        <input type="file" id="colorFileCam" accept="image/*" capture="environment" style="display:none;" onchange="onHousePhoto(this)">
+        <input type="file" id="colorFileGal" accept="image/*" style="display:none;" onchange="onHousePhoto(this)">
+        <button class="send-btn" id="colorPickBtn" onclick="document.getElementById('colorFileCam').click()">📷 Take Photo</button>
+        <button class="send-btn" id="colorPickBtn2" style="background:#5a6b7d;" onclick="document.getElementById('colorFileGal').click()">🖼️ Choose from Gallery</button>
       </div>
       <div id="colorStatus" style="display:none;text-align:center;font-size:.72rem;font-weight:700;color:var(--text-muted);margin-top:10px;"></div>
       <div id="colorPreviewWrap" style="display:none;margin-top:12px;"><img id="colorPreview" style="width:100%;border-radius:14px;" alt="Your house"></div>
